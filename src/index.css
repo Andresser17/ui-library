@@ -1,3 +1,59 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* primary */
+/* html {
+  --color: #FFFFFF;
+  --bg: #6E41E2;
+  --hover: #5835B0;
+  --active: #472C8A;
+  --focus: #6E41E2;
+  --focus-border: #949494;
+  --border: #412A7E;
+  --disabled: #E3DAF9;
+  --disabled-color: rgba(0, 0, 0, 0);
+  --disabled-border: rgba(0, 0, 0, 0);
+} */
+
+/* primary white */
+/* html {
+  --color: #6E41E2;
+  --bg: #FFFFFF;
+  --hover: #EDE8FB;
+  --active: #FFFFFF;
+  --focus: #FFFFFF;
+  --focus-border: #949494;
+  --border: #949494;
+  --disabled: #BFACF2;
+  --disabled-color: rgba(0, 0, 0, 0);
+  --disabled-border: rgba(0, 0, 0, 0);
+} */
+
+/* secondary */
+/* html {
+  --color: #6e41e2;
+  --bg: rgba(0, 0, 0, 0);
+  --hover: #ffffff;
+  --active: #e8e0fa;
+  --focus: #ffffff;
+  --focus-border: #949494;
+  --border: #6e41e2;
+  --disabled: rgba(0, 0, 0, 0);
+  --disabled-color: #ae94ef;
+  --disabled-border: #ae94ef;
+} */
+
+/* flat */
+html {
+  --color: #6e41e2;
+  --bg: rgba(0, 0, 0, 0);
+  --hover: rgba(0, 0, 0, 0);
+  --active: #E8E0FA;
+  --focus: rgba(0, 0, 0, 0);
+  --focus-border: #949494;
+  --border: rgba(0, 0, 0, 0);
+  --disabled: rgba(0, 0, 0, 0);
+  --disabled-color: #AE94EF;
+  --disabled-border: #AE94EF;
+}
