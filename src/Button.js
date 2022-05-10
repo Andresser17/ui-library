@@ -11,8 +11,7 @@ function Button({
   loading,
   disabled,
 }) {
-  const styles =
-    `bg-${palette}-bg text-${palette}-color hover:bg-${palette}-hover active:bg-${palette}-active focus:bg-${palette}-focus focus:border-${palette}-focusBorder disabled:bg-${palette}-disabled disabled:border-${palette}-disabledBorder disabled:text-${palette}-disabledColor`;
+  const styles = `bg-bg text-text hover:bg-hover active:bg-active focus:bg-focus focus:border-focus-border disabled:bg-disabled disabled:border-disabled-border disabled:text-disabled-text`;
 
   const loadingIcon = (
     <span className="mr-1 block w-5">
@@ -25,11 +24,24 @@ function Button({
     </span>
   );
 
+  const palettes = {
+    primary: "primary",
+    secondary: "secondary",
+    success: "success",
+    danger: "danger",
+    warning: "warning",
+    info: "info",
+    light: "light",
+    dark: "dark",
+  };
+
   return (
     <button
       className={`px-4 py-2 flex items-center focus:border-[0.125rem] rounded-sm ${
         rounded && "rounded-full"
-      } ${border && "border-2"} bg-bg text-text border-2 border-border secondary`}
+      } ${border && "border-2"} ${styles} ${
+        palette.length > 0 ? palettes[palette] : "primary"
+      }`}
       disabled={disabled}
     >
       {loading ? loadingIcon : icon && customIcon}

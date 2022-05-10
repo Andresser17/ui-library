@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 /* Palettes */
+body {
+
+}
 
 @layer base {
   :root {
@@ -10,15 +13,102 @@
     --text: theme("colors.white");
     --hover: theme("colors.blue.700");
     --active: theme("colors.blue.800");
-    --focus: theme("colors.blue.900");
+    --focus: theme("colors.blue.800");
     --focus-border: theme("colors.gray.600");
     --border: theme("colors.gray.400");
     --disabled: theme("colors.blue.300");
     --disabled-text: theme("colors.white");
-    --disabled-border: theme("colors.gray.400")
+    --disabled-border: theme("colors.gray.400");
   }
 
   .secondary {
+    --bg: theme("colors.gray.600");
+    --text: theme("colors.white");
+    --hover: theme("colors.gray.700");
+    --active: theme("colors.gray.800");
+    --focus: theme("colors.gray.800");
+    --focus-border: theme("colors.zinc.600");
+    --border: theme("colors.zinc.400");
+    --disabled: theme("colors.gray.300");
+    --disabled-text: theme("colors.zinc.700");
+    --disabled-border: theme("colors.zinc.400");
+  }
+
+  .success {
     --bg: theme("colors.green.600");
+    --text: theme("colors.white");
+    --hover: theme("colors.green.700");
+    --active: theme("colors.green.800");
+    --focus: theme("colors.green.800");
+    --focus-border: theme("colors.zinc.600");
+    --border: theme("colors.zinc.400");
+    --disabled: theme("colors.green.300");
+    --disabled-text: theme("colors.white");
+    --disabled-border: theme("colors.zinc.400");
+  }
+
+  .danger {
+    --bg: theme("colors.red.600");
+    --text: theme("colors.white");
+    --hover: theme("colors.red.700");
+    --active: theme("colors.red.800");
+    --focus: theme("colors.red.800");
+    --focus-border: theme("colors.zinc.600");
+    --border: theme("colors.zinc.400");
+    --disabled: theme("colors.red.300");
+    --disabled-text: theme("colors.white");
+    --disabled-border: theme("colors.zinc.400");
+  }
+
+  .warning {
+    --bg: theme("colors.yellow.400");
+    --text: theme("colors.zinc.800");
+    --hover: theme("colors.yellow.500");
+    --active: theme("colors.yellow.600");
+    --focus: theme("colors.yellow.600");
+    --focus-border: theme("colors.zinc.600");
+    --border: theme("colors.zinc.400");
+    --disabled: theme("colors.yellow.200");
+    --disabled-text: theme("colors.zinc.400");
+    --disabled-border: theme("colors.zinc.400");
+  }
+
+  .info {
+    --bg: theme("colors.cyan.400");
+    --text: theme("colors.white");
+    --hover: theme("colors.cyan.500");
+    --active: theme("colors.cyan.600");
+    --focus: theme("colors.cyan.600");
+    --focus-border: theme("colors.gray.400");
+    --border: theme("colors.gray.400");
+    --disabled: theme("colors.cyan.200");
+    --disabled-text: theme("colors.white");
+    --disabled-border: theme("colors.gray.400");
+  }
+
+  .light {
+    --bg: theme("colors.gray.100");
+    --text: theme("colors.zinc.700");
+    --hover: theme("colors.gray.200");
+    --active: theme("colors.gray.300");
+    --focus: theme("colors.gray.300");
+    --focus-border: theme("colors.zinc.700");
+    --border: theme("colors.zinc.700");
+    --disabled: theme("colors.gray.400");
+    --disabled-text: theme("colors.white");
+    --disabled-border: theme("colors.zinc.400");
+  }
+
+  .dark {
+    --bg: theme("colors.zinc.800");
+    --text: theme("colors.white");
+    --hover: theme("colors.zinc.700");
+    --active: theme("colors.zinc.600");
+    --focus: theme("colors.zinc.600");
+    --focus-border: theme("colors.zinc.800");
+    --border: theme("colors.zinc.500");
+    --disabled: theme("colors.zinc.500");
+    --disabled-text: theme("colors.zinc.800");
+    --disabled-border: theme("colors.zinc.800");
   }
 }
