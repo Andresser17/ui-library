@@ -3,13 +3,14 @@ import Button from "./Button";
 
 function App() {
   return (
-    <div className="App p-4 h-screen bg-gray-900 flex items-start justify-center">
+    <div className="App p-4 h-screen bg-red-600 flex items-start justify-center">
       <Button
-        palette="secondary"
-        icon={false}
+        text="Enter"
+        palette="success-dark"
+        icon={true}
         rounded={false}
         loading={false}
-        border={false}
+        border={true}
         disabled={false}
       />
     </div>

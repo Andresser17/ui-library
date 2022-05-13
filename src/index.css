@@ -13,9 +13,10 @@
     --focus: theme("colors.blue.800");
     --focus-border: theme("colors.gray.200");
     --border: theme("colors.gray.100");
-    --disabled: theme("colors.blue.400");
-    --disabled-text: theme("colors.gray.100");
-    --disabled-border: theme("colors.gray.100");
+    --disabled-opacity: 0.5;
+    /* --disabled: theme("colors.blue.400"); */
+    /* --disabled-text: theme("colors.gray.100"); */
+    /* --disabled-border: theme("colors.gray.100"); */
   }
 
   .primary-white {
@@ -26,9 +27,9 @@
     --focus: theme("colors.gray.300");
     --focus-border: theme("colors.blue.700");
     --border: theme("colors.blue.600");
-    --disabled: theme("colors.gray.500");
-    --disabled-text: theme("colors.blue.800");
-    --disabled-border: theme("colors.blue.800");
+    /* --disabled: theme("colors.gray.500"); */
+    /* --disabled-text: theme("colors.blue.800"); */
+    /* --disabled-border: theme("colors.blue.800"); */
   }
 
   .primary-dark {
@@ -39,9 +40,9 @@
     --focus: theme("colors.gray.700");
     --focus-border: theme("colors.blue.600");
     --border: theme("colors.blue.500");
-    --disabled: theme("colors.gray.400");
-    --disabled-text: theme("colors.blue.800");
-    --disabled-border: theme("colors.blue.800");
+    /* --disabled: theme("colors.gray.400"); */
+    /* --disabled-text: theme("colors.blue.800"); */
+    /* --disabled-border: theme("colors.blue.800"); */
   }
 
   .secondary {
@@ -52,9 +53,9 @@
     --focus: theme("colors.gray.800");
     --focus-border: theme("colors.gray.200");
     --border: theme("colors.gray.100");
-    --disabled: theme("colors.gray.400");
-    --disabled-text: theme("colors.gray.100");
-    --disabled-border: theme("colors.gray.100");
+    /* --disabled: theme("colors.gray.400"); */
+    /* --disabled-text: theme("colors.gray.100"); */
+    /* --disabled-border: theme("colors.gray.100"); */
   }
 
   .secondary-white {
@@ -65,9 +66,9 @@
     --focus: theme("colors.gray.300");
     --focus-border: theme("colors.gray.900");
     --border: theme("colors.gray.800");
-    --disabled: theme("colors.gray.800");
-    --disabled-text: theme("colors.gray.100");
-    --disabled-border: theme("colors.gray.100");
+    /* --disabled: theme("colors.gray.800"); */
+    /* --disabled-text: theme("colors.gray.100"); */
+    /* --disabled-border: theme("colors.gray.100"); */
   }
 
   .secondary-dark {
@@ -78,9 +79,9 @@
     --focus: theme("colors.gray.700");
     --focus-border: theme("colors.gray.500");
     --border: theme("colors.gray.400");
-    --disabled: theme("colors.gray.200");
-    --disabled-text: theme("colors.gray.400");
-    --disabled-border: theme("colors.gray.400");
+    /* --disabled: theme("colors.gray.200"); */
+    /* --disabled-text: theme("colors.gray.400"); */
+    /* --disabled-border: theme("colors.gray.400"); */
   }
 
   .success {
@@ -91,9 +92,9 @@
     --focus: theme("colors.green.800");
     --focus-border: theme("colors.gray.500");
     --border: theme("colors.gray.400");
-    --disabled: theme("colors.green.400");
-    --disabled-text: theme("colors.gray.100");
-    --disabled-border: theme("colors.gray.400");
+    /* --disabled: theme("colors.green.400"); */
+    /* --disabled-text: theme("colors.gray.100"); */
+    /* --disabled-border: theme("colors.gray.400"); */
   }
 
   .success-white {
@@ -104,9 +105,9 @@
     --focus: theme("colors.gray.300");
     --focus-border: theme("colors.green.700");
     --border: theme("colors.green.600");
-    --disabled: theme("colors.gray.500");
-    --disabled-text: theme("colors.green.800");
-    --disabled-border: theme("colors.green.800");
+    /* --disabled: theme("colors.gray.500"); */
+    /* --disabled-text: theme("colors.green.800"); */
+    /* --disabled-border: theme("colors.green.800"); */
   }
 
   .success-dark {
@@ -117,9 +118,9 @@
     --focus: theme("colors.gray.700");
     --focus-border: theme("colors.green.700");
     --border: theme("colors.green.600");
-    --disabled: theme("colors.gray.400");
-    --disabled-text: theme("colors.green.800");
-    --disabled-border: theme("colors.green.800");
+    /* --disabled: theme("colors.gray.400"); */
+    /* --disabled-text: theme("colors.green.800"); */
+    /* --disabled-border: theme("colors.green.800"); */
   }
 
   .danger {
@@ -130,9 +131,9 @@
     --focus: theme("colors.red.800");
     --focus-border: theme("colors.zinc.600");
     --border: theme("colors.zinc.400");
-    --disabled: theme("colors.red.300");
-    --disabled-text: theme("colors.gray.100");
-    --disabled-border: theme("colors.zinc.400");
+    /* --disabled: theme("colors.red.300"); */
+    /* --disabled-text: theme("colors.gray.100"); */
+    /* --disabled-border: theme("colors.zinc.400"); */
   }
 
   .danger-white {
@@ -143,9 +144,9 @@
     --focus: theme("colors.gray.300");
     --focus-border: theme("colors.red.700");
     --border: theme("colors.red.600");
-    --disabled: theme("colors.gray.500");
-    --disabled-text: theme("colors.red.800");
-    --disabled-border: theme("colors.red.800");
+    /* --disabled: theme("colors.gray.500"); */
+    /* --disabled-text: theme("colors.red.800"); */
+    /* --disabled-border: theme("colors.red.800"); */
   }
 
   .danger-dark {
@@ -156,9 +157,9 @@
     --focus: theme("colors.gray.700");
     --focus-border: theme("colors.red.700");
     --border: theme("colors.red.600");
-    --disabled: theme("colors.gray.400");
-    --disabled-text: theme("colors.red.800");
-    --disabled-border: theme("colors.red.800");
+    /* --disabled: theme("colors.gray.400"); */
+    /* --disabled-text: theme("colors.red.800"); */
+    /* --disabled-border: theme("colors.red.800"); */
   }
 
   .warning {
@@ -169,9 +170,9 @@
     --focus: theme("colors.yellow.600");
     --focus-border: theme("colors.gray.700");
     --border: theme("colors.gray.800");
-    --disabled: theme("colors.yellow.200");
-    --disabled-text: theme("colors.gray.500");
-    --disabled-border: theme("colors.gray.500");
+    /* --disabled: theme("colors.yellow.200"); */
+    /* --disabled-text: theme("colors.gray.500"); */
+    /* --disabled-border: theme("colors.gray.500"); */
   }
 
   .warning-white {
@@ -182,9 +183,9 @@
     --focus: theme("colors.gray.300");
     --focus-border: theme("colors.yellow.500");
     --border: theme("colors.yellow.400");
-    --disabled: theme("colors.gray.500");
-    --disabled-text: theme("colors.yellow.600");
-    --disabled-border: theme("colors.yellow.600");
+    /* --disabled: theme("colors.gray.500"); */
+    /* --disabled-text: theme("colors.yellow.600"); */
+    /* --disabled-border: theme("colors.yellow.600"); */
   }
 
   .warning-dark {
@@ -195,9 +196,9 @@
     --focus: theme("colors.gray.700");
     --focus-border: theme("colors.yellow.500");
     --border: theme("colors.yellow.400");
-    --disabled: theme("colors.gray.500");
-    --disabled-text: theme("colors.yellow.600");
-    --disabled-border: theme("colors.yellow.600");
+    /* --disabled: theme("colors.gray.500"); */
+    /* --disabled-text: theme("colors.yellow.600"); */
+    /* --disabled-border: theme("colors.yellow.600"); */
   }
 
   .info {
@@ -208,9 +209,9 @@
     --focus: theme("colors.cyan.600");
     --focus-border: theme("colors.gray.300");
     --border: theme("colors.gray.200");
-    --disabled: theme("colors.cyan.200");
-    --disabled-text: theme("colors.gray.400");
-    --disabled-border: theme("colors.gray.400");
+    /* --disabled: theme("colors.cyan.200"); */
+    /* --disabled-text: theme("colors.gray.400"); */
+    /* --disabled-border: theme("colors.gray.400"); */
   }
 
   .info-white {
@@ -221,9 +222,9 @@
     --focus: theme("colors.gray.300");
     --focus-border: theme("colors.cyan.500");
     --border: theme("colors.cyan.400");
-    --disabled: theme("colors.gray.500");
-    --disabled-text: theme("colors.cyan.600");
-    --disabled-border: theme("colors.cyan.600");
+    /* --disabled: theme("colors.gray.500"); */
+    /* --disabled-text: theme("colors.cyan.600"); */
+    /* --disabled-border: theme("colors.cyan.600"); */
   }
 
   .info-dark {
@@ -234,9 +235,9 @@
     --focus: theme("colors.gray.700");
     --focus-border: theme("colors.cyan.500");
     --border: theme("colors.cyan.400");
-    --disabled: theme("colors.gray.400");
-    --disabled-text: theme("colors.cyan.600");
-    --disabled-border: theme("colors.cyan.600");
+    /* --disabled: theme("colors.gray.400"); */
+    /* --disabled-text: theme("colors.cyan.600"); */
+    /* --disabled-border: theme("colors.cyan.600"); */
   }
 
   .light {
@@ -247,9 +248,9 @@
     --focus: theme("colors.gray.300");
     --focus-border: theme("colors.zinc.700");
     --border: theme("colors.zinc.700");
-    --disabled: theme("colors.gray.400");
-    --disabled-text: theme("colors.white");
-    --disabled-border: theme("colors.zinc.400");
+    /* --disabled: theme("colors.gray.400"); */
+    /* --disabled-text: theme("colors.white"); */
+    /* --disabled-border: theme("colors.zinc.400"); */
   }
 
   .dark {
@@ -260,8 +261,38 @@
     --focus: theme("colors.zinc.600");
     --focus-border: theme("colors.zinc.800");
     --border: theme("colors.zinc.500");
-    --disabled: theme("colors.zinc.500");
-    --disabled-text: theme("colors.zinc.800");
-    --disabled-border: theme("colors.zinc.800");
+    /* --disabled: theme("colors.zinc.500"); */
+    /* --disabled-text: theme("colors.zinc.800"); */
+    /* --disabled-border: theme("colors.zinc.800"); */
+  }
+
+  .flat {
+    --bg: rgba(0, 0, 0, 0);
+    /* --text: theme("colors.blue.600"); */
+    --hover: rgba(0, 0, 0, 0.1);
+    --active: rgba(56, 101, 234, 0.3);
+    --focus: rgba(0, 0, 0, 0);
+    --focus-border: theme("colors.gray.400");
+    --border: rgba(0, 0, 0, 0);
+  }
+
+  .flat-white {
+    --bg: rgba(0, 0, 0, 0);
+    --text: theme("colors.gray.100");
+    --hover: rgba(0, 0, 0, 0.1);
+    --active: rgba(0, 0, 0, 0.2);
+    --focus: rgba(0, 0, 0, 0);
+    --focus-border: theme("colors.gray.700");
+    --border: rgba(0, 0, 0, 0);
+  }
+
+  .flat-dark {
+    --bg: rgba(0, 0, 0, 0);
+    --text: theme("colors.gray.900");
+    --hover: rgba(0, 0, 0, 0.1);
+    --active: rgba(0, 0, 0, 0.2);
+    --focus: rgba(0, 0, 0, 0);
+    --focus-border: theme("colors.gray.900");
+    --border: rgba(0, 0, 0, 0);
   }
 }
