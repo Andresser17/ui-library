@@ -2,9 +2,10 @@ import PropTypes from "prop-types";
 import { ReactComponent as LoadingIcon } from "./icons/loading-icon.svg";
 import { ReactComponent as PlusIcon } from "./icons/plus-icon.svg";
 
-function IconCircle({ children, disabled, styles }) {
+function IconCircle({ children, disabled, styles, onClick }) {
   return (
     <button
+      onClick={onClick}
       className={`w-10 h-10 flex justify-center items-center rounded-[50%] ${styles}`}
       disabled={disabled}
     >
@@ -13,10 +14,11 @@ function IconCircle({ children, disabled, styles }) {
   );
 }
 
-function Icon({ children, rounded, disabled, styles }) {
+function Icon({ children, rounded, disabled, styles, onClick }) {
   const optRounded = rounded ? "rounded-lg" : "rounded-sm";
   return (
     <button
+      onClick={onClick}
       className={`px-2 h-9 flex items-center ${optRounded} ${styles}`}
       disabled={disabled}
     >
@@ -25,10 +27,11 @@ function Icon({ children, rounded, disabled, styles }) {
   );
 }
 
-function LabelIcon({ children, rounded, disabled, styles }) {
+function LabelIcon({ children, rounded, disabled, styles, onClick }) {
   const optRounded = rounded ? "rounded-lg" : "rounded-sm";
   return (
     <button
+      onClick={onClick}
       className={`flex items-center ${optRounded} ${styles}`}
       disabled={disabled}
     >
@@ -37,10 +40,11 @@ function LabelIcon({ children, rounded, disabled, styles }) {
   );
 }
 
-function Label({ rounded, disabled, styles, children }) {
+function Label({ rounded, disabled, styles, children, onClick }) {
   const optRounded = rounded ? "rounded-lg" : "rounded-sm";
   return (
     <button
+      onClick={onClick}
       className={`flex items-center ${optRounded} ${styles}`}
       disabled={disabled}
     >
@@ -117,6 +121,7 @@ function Button({
   );
 }
 Button.propTypes = {
+  onClick: PropTypes.func,
   text: PropTypes.string,
   palette: PropTypes.string,
   icon: PropTypes.bool,
