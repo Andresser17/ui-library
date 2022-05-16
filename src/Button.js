@@ -67,7 +67,7 @@ function Button({
   // If icon is true and text is empty
   const optPadding = !text && icon ? "" : "px-4 py-2";
   // If border is active
-  const optBorder = border && "border-2";
+  const optBorder = border ? "border-2" : "";
   const styles = `bg-bg ${optPalette} text-text ${optBorder} focus:border-[0.125rem] ${optPadding} border-border hover:bg-hover active:bg-active focus:bg-focus focus:border-focus-border disabled:bg-bg disabled:opacity-[var(--disabled-opacity)]`;
 
   // Default icons
