@@ -9,7 +9,7 @@ import Checkbox from "./Checkbox";
 function App() {
   return (
     <div className="App p-4 h-screen bg-green-400 flex items-start justify-center">
-      <Checkbox palette="primary" value="terror" indeterminate={false} error={false} disabled={false} />
+      <Checkbox label="neo new label" palette="primary" value="terror" />
     </div>
   );
 }

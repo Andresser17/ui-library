@@ -2,7 +2,15 @@ import { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import checkStyle from "./Checkbox.module.css";
 
-function Checkbox({ onClick, value, palette, disabled, error, indeterminate }) {
+function Checkbox({
+  onClick,
+  value,
+  label,
+  palette,
+  disabled,
+  error,
+  indeterminate,
+}) {
   // If palette is not provided, is equal primary
   const optPalette = palette ? palette : "primary";
   const styles = `${checkStyle.Checkbox} shadow-md rounded-sm w-5 h-5 disabled:opacity-[var(--disabled-opacity)]`;
@@ -20,18 +28,30 @@ function Checkbox({ onClick, value, palette, disabled, error, indeterminate }) {
   const labelError = "text-red-300";
   // Checkmark icon
   const before = "before:bg-text";
-  const checkbox = useRef();
+  const checkboxRef = useRef();
+  const labelRef = useRef();
 
   // Toggle indeterminate property
   useEffect(() => {
-    checkbox.current.indeterminate = indeterminate;
+    checkboxRef.current.indeterminate = indeterminate;
   }, [indeterminate]);
 
+  // Assign id from label prop
+  useEffect(() => {
+    const newId = label.replaceAll(" ", "-");
+    labelRef.current.htmlFor = newId;
+    checkboxRef.current.id = newId;
+  }, [label]);
+
   return (
-    <div className={`flex justify-center items-center ${optPalette}`}>
+    <div
+      id={`cont-${label}`}
+      className={`flex justify-center items-center ${optPalette}`}
+    >
       <input
+        id={label}
         onClick={onClick}
-        ref={checkbox}
+        ref={checkboxRef}
         className={`${styles} ${before} ${
           error ? inputError : `${unselected} ${inputIndeter} ${selected}`
         }`}
@@ -40,11 +60,12 @@ function Checkbox({ onClick, value, palette, disabled, error, indeterminate }) {
         disabled={disabled}
       />
       <label
-        className={`ml-2 text-text ${
+        ref={labelRef}
+        className={`ml-2 ${
           disabled ? "opacity-[var(--disabled-opacity)]" : ""
-        } ${error ? labelError : ""}`}
+        } ${error ? labelError : "text-text"}`}
       >
-        Hello
+        {label}
       </label>
     </div>
   );
@@ -52,6 +73,7 @@ function Checkbox({ onClick, value, palette, disabled, error, indeterminate }) {
 Checkbox.propTypes = {
   onClick: PropTypes.func,
   value: PropTypes.string,
+  label: PropTypes.string,
   palette: PropTypes.string,
   disabled: PropTypes.bool,
   error: PropTypes.bool,
