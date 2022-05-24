@@ -11,25 +11,64 @@ const reducer = (state, action) => {
     case "SET_IN_DROP_ZONE":
       return { ...state, inDropZone: action.inDropZone };
     case "ADD_FILE_TO_LIST":
-      return { ...state, fileList: state.fileList.concat(action.files) };
+      return {
+        ...state,
+        fileList: state.fileList.concat(action.filteredFiles),
+      };
     case "ADD_ONE_FILE_TO_LIST":
-      return { ...state, fileList: action.files };
+      return { ...state, fileList: action.filteredFiles };
     default:
       return state;
   }
 };
 
+// Take a file size in Bytes, KB, MB or GB
+const calcFileSize = (str) => {
+  const KB = /[. 0-9]+(KB)/g;
+  const MB = /[. 0-9]+(MB)/g;
+  const GB = /[. 0-9]+(GB)/g;
+  const onlyNum = Number(str.match(/\d+/g));
+  const convertFunc = (size, n) => {
+    if (n === 0) return size;
+
+    return convertFunc(size * 1024, n - 1);
+  };
+
+  if (KB.test(str)) {
+    return convertFunc(onlyNum, 1);
+  }
+
+  if (MB.test(str)) {
+    return convertFunc(onlyNum, 2);
+  }
+
+  if (GB.test(str)) {
+    return convertFunc(onlyNum, 3);
+  }
+
+  return Number(str);
+};
+
 function ListFiles({ files, multipleFiles }) {
-  return (
+  const multiple = (
     <ol className="bg-red-600 w-full">
       {files.map((f) => {
         return <li key={f.name}>{f.name}</li>;
       })}
     </ol>
   );
+
+  return multiple;
 }
 
-function DragAndDrop({ dispatch, data, multipleFiles, setHandlers }) {
+function DragAndDrop({
+  dispatch,
+  data,
+  handleFileInput,
+  accept,
+  maxFileSize,
+  setHandlers,
+}) {
   // Manage file drag and drop
   const onDrop = (e) => {
     e.preventDefault();
@@ -38,15 +77,7 @@ function DragAndDrop({ dispatch, data, multipleFiles, setHandlers }) {
     let files = [...e.dataTransfer.files];
 
     if (files && files.length > 0) {
-      const existingFiles = data.fileList.map((f) => f.name);
-      files = files.filter((f) => !existingFiles.includes(f.name));
-
-      // Toggle between one file or multiple files at once
-      if (multipleFiles) {
-        dispatch({ type: "ADD_FILE_TO_LIST", files });
-      } else {
-        dispatch({ type: "ADD_ONE_FILE_TO_LIST", files });
-      }
+      handleFileInput(files);
       e.dataTransfer.clearData();
       dispatch({ type: "SET_DROP_DEPTH", dropDepth: 0 });
       dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: false });
@@ -69,7 +100,7 @@ function DragAndDrop({ dispatch, data, multipleFiles, setHandlers }) {
     dispatch({ type: "SET_DROP_DEPTH", dropDepth: data.dropDepth - 1 });
   };
 
-  // If data.dropDepth is, 0 inDropZone is equal false
+  // If data.dropDepth is, 0 inDropZone is false
   useEffect(() => {
     if (data.dropDepth === 0)
       dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: false });
@@ -87,7 +118,7 @@ function DragAndDrop({ dispatch, data, multipleFiles, setHandlers }) {
         <>
           <span className="block text-bg">Select or drag a file</span>
           <span className="block text-sm text-gray-400">
-            PNG, jpg, gif files up to 10 MB in size
+            {accept} files up to {maxFileSize} in size
           </span>
         </>
       ) : (
@@ -98,15 +129,16 @@ function DragAndDrop({ dispatch, data, multipleFiles, setHandlers }) {
 }
 
 function Files({
-  onClick,
+  handleUpload,
   palette,
   error,
   maxFileSize,
   accept,
   multipleFiles,
+  progressEvent,
 }) {
   const [handlers, setHandlers] = useState({});
-  // Dispatch
+  // Drag and Drop state
   const [data, dispatch] = useReducer(reducer, {
     dropDepth: 0,
     inDropZone: false,
@@ -127,10 +159,37 @@ function Files({
   //   const newId = label.replaceAll(" ", "-");
   //   checkboxRef.current.id = newId;
   // }, [label]);
-  const handleFileInput = (e) => {
-    const newFile = e.target.files;
-    console.log(newFile)
-  }
+
+  // Read file
+  const handleFileInput = (files) => {
+    const existingFiles = data.fileList.map((f) => f.name);
+    const filteredFiles = files.filter((f) => {
+      // Compare maxFileSize with new input file size
+      if (f.size > calcFileSize(maxFileSize)) {
+        // In the future change the component to error state
+        return false;
+      }
+
+      // Check if input files are in fileList;
+      return !existingFiles.includes(f.name);
+    });
+
+    // Toggle between one file or multiple files at once
+    if (multipleFiles) {
+      dispatch({ type: "ADD_FILE_TO_LIST", filteredFiles });
+    } else {
+      dispatch({ type: "ADD_ONE_FILE_TO_LIST", filteredFiles });
+    }
+  };
+
+  // Upload File
+  const uploadFileInput = () => {
+    const files = data.fileList[0];
+    const formData = new FormData();
+    formData.set("file", files);
+
+    handleUpload(formData);
+  };
 
   return (
     <div
@@ -139,25 +198,38 @@ function Files({
       } ${styles} ${optPalette}`}
       {...handlers}
     >
-      <DragAndDrop {...{ dispatch, data, multipleFiles, setHandlers }} />
+      <DragAndDrop
+        {...{
+          dispatch,
+          data,
+          handleFileInput,
+          accept,
+          maxFileSize,
+          setHandlers,
+        }}
+      />
       <ListFiles files={data.fileList} multipleFiles={multipleFiles} />
       <input
-        onChange={handleFileInput}
+        onChange={(e) => handleFileInput([...e.target.files])}
         className={filesStyle["custom-file-input"]}
         type="file"
         id="myFile"
         name="filename"
       />
+      {/* <button onClick={uploadFileInput} className="bg-red-600 p-4"> */}
+      {/*   Hello */}
+      {/* </button> */}
     </div>
   );
 }
 Files.propTypes = {
-  onClick: PropTypes.func,
+  handleUpload: PropTypes.func,
   palette: PropTypes.string,
   error: PropTypes.bool,
   maxFileSize: PropTypes.string,
   accept: PropTypes.string,
   multipleFiles: PropTypes.bool,
+  progressEvent: PropTypes.object,
 };
 
 export default Files;

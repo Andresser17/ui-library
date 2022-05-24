@@ -6,10 +6,21 @@ import "./App.css";
 // import Badge from "./Badge";
 import Files from "./Files";
 
+const handleUpload = (formData) => {
+  fetch("http://localhost:3001/upload-single-file", {
+    method: "POST",
+    body: formData,
+  }).then((res) => res.json())
+  .then(data => {
+    console.log(data)
+    console.log(data.url)
+  })
+};
+
 function App() {
   return (
     <div className="App p-4 h-screen bg-green-400 flex items-start justify-center">
-      <Files palette="primary" />
+      <Files maxFileSize="3MB" accept=".png, .jpg, .gif" handleUpload={handleUpload} palette="primary" />
     </div>
   );
 }
