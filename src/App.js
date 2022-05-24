@@ -20,7 +20,7 @@ const handleUpload = (formData) => {
 function App() {
   return (
     <div className="App p-4 h-screen bg-green-400 flex items-start justify-center">
-      <Files maxFileSize="3MB" accept=".png, .jpg, .gif" handleUpload={handleUpload} palette="primary" />
+      <Files maxFileSize="3MB" accept={["image/png", "image/jpeg", "image/gif"]} handleUpload={handleUpload} palette="primary" />
     </div>
   );
 }

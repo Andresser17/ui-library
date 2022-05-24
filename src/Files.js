@@ -111,6 +111,14 @@ function DragAndDrop({
     setHandlers({ onDrop, onDragOver, onDragEnter, onDragLeave });
   }, []);
 
+  const printTypes = accept.map((type, i) => {
+    let toPrint = type.match(/\/\w+/g)[0].replace("/", ".");
+
+    if (i === accept.length - 1) return toPrint + " ";
+
+    return toPrint + ", ";
+  });
+
   return (
     <>
       {/* If not are a file in drop zone */}
@@ -118,7 +126,7 @@ function DragAndDrop({
         <>
           <span className="block text-bg">Select or drag a file</span>
           <span className="block text-sm text-gray-400">
-            {accept} files up to {maxFileSize} in size
+            {printTypes} files up to {maxFileSize} in size
           </span>
         </>
       ) : (
@@ -166,6 +174,12 @@ function Files({
     const filteredFiles = files.filter((f) => {
       // Compare maxFileSize with new input file size
       if (f.size > calcFileSize(maxFileSize)) {
+        // In the future change the component to error state
+        return false;
+      }
+
+      // Check if fileType is accepted
+      if (!accept.includes(f.type)) {
         // In the future change the component to error state
         return false;
       }
@@ -227,7 +241,7 @@ Files.propTypes = {
   palette: PropTypes.string,
   error: PropTypes.bool,
   maxFileSize: PropTypes.string,
-  accept: PropTypes.string,
+  accept: PropTypes.array,
   multipleFiles: PropTypes.bool,
   progressEvent: PropTypes.object,
 };
