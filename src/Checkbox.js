@@ -49,7 +49,6 @@ function Checkbox({
       className={`flex justify-center items-center ${optPalette}`}
     >
       <input
-        id={label}
         onClick={onClick}
         ref={checkboxRef}
         className={`${styles} ${before} ${
