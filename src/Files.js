@@ -17,6 +17,12 @@ const reducer = (state, action) => {
       };
     case "ADD_ONE_FILE_TO_LIST":
       return { ...state, fileList: action.filteredFiles };
+
+    case "DELETE_FILE_FROM_LIST":
+      return {
+        ...state,
+        fileList: state.fileList.filter((_, i) => i !== action.index),
+      };
     default:
       return state;
   }
@@ -49,7 +55,46 @@ const calcFileSize = (str) => {
   return Number(str);
 };
 
-function ListFiles({ files, multipleFiles }) {
+// Take a number in bytes
+const convertToUnit = (bytes) => {
+  const units = { 1: "KB", 2: "MB", 3: "GB", 4: "TB" };
+  const convertFunc = (size, n) => {
+    if (size < 1) return String((size * 1024).toFixed(2)) + units[n - 2];
+
+    return convertFunc(size / 1024, n + 1);
+  };
+
+  return convertFunc(bytes, 1);
+};
+
+function ListFiles({ files, multipleFiles, fileInput, dispatch }) {
+  if (files.length === 0) return;
+
+  const deleteFile = (index) =>
+    dispatch({ type: "DELETE_FILE_FROM_LIST", index });
+
+  const uploadFile = () => {};
+
+  const single = (
+    <>
+      <span className="block col-span-8 justify-self-start row-start-1">
+        {files[0].name}{" "}
+        <span className="text-gray-400">{convertToUnit(files[0].size)}</span>
+      </span>
+      <span className="text-sm text-bg block col-span-8 justify-self-start self-end row-start-2">
+        <button onClick={() => fileInput.current.click()}>Select file</button>
+        <button onClick={uploadFile} className="ml-3">
+          Upload
+        </button>
+        <button onClick={() => deleteFile(0)} className="text-bg ml-3 danger">
+          Delete
+        </button>
+      </span>
+      <span className="w-10 p-3 flex justify-center row-span-2 col-start-12 mr-6 items-center rounded-[50%] bg-black/5 block h-10">
+        <FileIcon className="text-bg" />
+      </span>
+    </>
+  );
   const multiple = (
     <ol className="bg-red-600 w-full">
       {files.map((f) => {
@@ -58,7 +103,11 @@ function ListFiles({ files, multipleFiles }) {
     </ol>
   );
 
-  return multiple;
+  return (
+    <div className="p-4 grid grid-cols-12 grid-rows-2 relative rounded-md">
+      {multipleFiles ? multiple : single}
+    </div>
+  );
 }
 
 function DragAndDrop({
@@ -100,9 +149,9 @@ function DragAndDrop({
     dispatch({ type: "SET_DROP_DEPTH", dropDepth: data.dropDepth - 1 });
   };
 
-  // If data.dropDepth is, 0 inDropZone is false
+  // If data.dropDepth is < 0, inDropZone is false
   useEffect(() => {
-    if (data.dropDepth === 0)
+    if (data.dropDepth <= 0)
       dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: false });
   }, [data.dropDepth]);
 
@@ -120,7 +169,11 @@ function DragAndDrop({
   });
 
   return (
-    <>
+    <div
+      className={`flex flex-col absolute p-4 justify-center w-full h-full z-10 rounded-md ${
+        data.inDropZone ? "bg-bg items-center" : "items-start"
+      } ${data.fileList.length > 0 && !data.inDropZone ? "hidden" : ""}`}
+    >
       {/* If not are a file in drop zone */}
       {!data.inDropZone ? (
         <>
@@ -132,7 +185,7 @@ function DragAndDrop({
       ) : (
         <FileIcon className="h-6 w-6 text-text" />
       )}
-    </>
+    </div>
   );
 }
 
@@ -154,13 +207,11 @@ function Files({
   });
   // If palette is not provided, is equal primary
   const optPalette = palette ? palette : "primary";
-  const styles = `flex ${
-    data.inDropZone ? "items-center" : "items-start"
-  } justify-center flex-col cursor-pointer shadow-md rounded-md p-4 relative hover:shadow-xl w-[40rem] h-20`;
-  // Drag and Drop styles
-  const outDropZoneStyles = "bg-gray-100";
-  const inDropZoneStyles = "bg-bg";
+  const styles = `bg-gray-100 rounded-md shadow-md relative hover:shadow-xl w-[40rem] h-20`;
   // Error state
+
+  // Refs
+  const fileInputRef = useRef();
 
   // Assign id from label prop
   // useEffect(() => {
@@ -170,6 +221,8 @@ function Files({
 
   // Read file
   const handleFileInput = (files) => {
+    if (files.length === 0) return;
+
     const existingFiles = data.fileList.map((f) => f.name);
     const filteredFiles = files.filter((f) => {
       // Compare maxFileSize with new input file size
@@ -206,12 +259,7 @@ function Files({
   };
 
   return (
-    <div
-      className={`${
-        data.inDropZone ? inDropZoneStyles : outDropZoneStyles
-      } ${styles} ${optPalette}`}
-      {...handlers}
-    >
+    <div className={`${styles} ${optPalette}`} {...handlers}>
       <DragAndDrop
         {...{
           dispatch,
@@ -222,17 +270,22 @@ function Files({
           setHandlers,
         }}
       />
-      <ListFiles files={data.fileList} multipleFiles={multipleFiles} />
+      <ListFiles
+        files={data.fileList}
+        multipleFiles={multipleFiles}
+        fileInput={fileInputRef}
+        dispatch={dispatch}
+      />
       <input
+        ref={fileInputRef}
         onChange={(e) => handleFileInput([...e.target.files])}
-        className={filesStyle["custom-file-input"]}
+        className={`${filesStyle["custom-file-input"]} ${
+          data.fileList.length > 0 ? "hidden" : ""
+        }`}
         type="file"
         id="myFile"
         name="filename"
       />
-      {/* <button onClick={uploadFileInput} className="bg-red-600 p-4"> */}
-      {/*   Hello */}
-      {/* </button> */}
     </div>
   );
 }
