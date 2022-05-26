@@ -6,6 +6,10 @@ import { ReactComponent as FileIcon } from "./icons/file-icon.svg";
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case "SET_MODE":
+      return { ...state, mode: action.payload };
+    case "SET_ERROR":
+      return { ...state, error: action.payload };
     case "SET_DROP_DEPTH":
       return { ...state, dropDepth: action.dropDepth };
     case "SET_IN_DROP_ZONE":
@@ -13,11 +17,10 @@ const reducer = (state, action) => {
     case "ADD_FILE_TO_LIST":
       return {
         ...state,
-        fileList: state.fileList.concat(action.filteredFiles),
+        fileList: state.fileList.concat(action.payload),
       };
     case "ADD_ONE_FILE_TO_LIST":
-      return { ...state, fileList: action.filteredFiles };
-
+      return { ...state, fileList: action.payload };
     case "DELETE_FILE_FROM_LIST":
       return {
         ...state,
@@ -67,13 +70,11 @@ const convertToUnit = (bytes) => {
   return convertFunc(bytes, 1);
 };
 
-function ListFiles({ files, multipleFiles, fileInput, dispatch }) {
+function ListFiles({ files, multipleFiles, uploadFiles, fileInput, dispatch }) {
   if (files.length === 0) return;
 
   const deleteFile = (index) =>
     dispatch({ type: "DELETE_FILE_FROM_LIST", index });
-
-  const uploadFile = () => {};
 
   const single = (
     <>
@@ -83,7 +84,7 @@ function ListFiles({ files, multipleFiles, fileInput, dispatch }) {
       </span>
       <span className="text-sm text-bg block col-span-8 justify-self-start self-end row-start-2">
         <button onClick={() => fileInput.current.click()}>Select file</button>
-        <button onClick={uploadFile} className="ml-3">
+        <button onClick={uploadFiles} className="ml-3">
           Upload
         </button>
         <button onClick={() => deleteFile(0)} className="text-bg ml-3 danger">
@@ -104,22 +105,39 @@ function ListFiles({ files, multipleFiles, fileInput, dispatch }) {
   );
 
   return (
-    <div className="p-4 grid grid-cols-12 grid-rows-2 relative rounded-md">
+    <div className="w-full, h-full grid grid-cols-12 grid-rows-2">
       {multipleFiles ? multiple : single}
     </div>
   );
 }
 
-function DragAndDrop({
-  dispatch,
-  data,
-  handleFileInput,
-  accept,
-  maxFileSize,
-  setHandlers,
-}) {
+function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
+  // If palette is not provided, is equal primary
+  const optPalette = palette ? palette : "primary";
+  const styles = `${
+    data.inDropZone ? "bg-bg" : "bg-gray-100"
+  } flex flex-col justify-center items-center rounded-md shadow-md relative hover:shadow-xl w-[40rem] h-20 p-4 ${optPalette}`;
   // Manage file drag and drop
-  const onDrop = (e) => {
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "copy";
+    dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: true });
+  };
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch({ type: "SET_DROP_DEPTH", dropDepth: data.dropDepth + 1 });
+  };
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (data.dropDepth === 0) return;
+    dispatch({ type: "SET_DROP_DEPTH", dropDepth: data.dropDepth - 1 });
+    dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: false });
+  };
+
+  const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -132,58 +150,19 @@ function DragAndDrop({
       dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: false });
     }
   };
-  const onDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = "copy";
-    dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: true });
-  };
-  const onDragEnter = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dispatch({ type: "SET_DROP_DEPTH", dropDepth: data.dropDepth + 1 });
-  };
-  const onDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dispatch({ type: "SET_DROP_DEPTH", dropDepth: data.dropDepth - 1 });
-  };
-
-  // If data.dropDepth is < 0, inDropZone is false
-  useEffect(() => {
-    if (data.dropDepth <= 0)
-      dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: false });
-  }, [data.dropDepth]);
-
-  // Pass handlers to parent component
-  useEffect(() => {
-    setHandlers({ onDrop, onDragOver, onDragEnter, onDragLeave });
-  }, []);
-
-  const printTypes = accept.map((type, i) => {
-    let toPrint = type.match(/\/\w+/g)[0].replace("/", ".");
-
-    if (i === accept.length - 1) return toPrint + " ";
-
-    return toPrint + ", ";
-  });
 
   return (
     <div
-      className={`flex flex-col absolute p-4 justify-center w-full h-full z-10 rounded-md ${
-        data.inDropZone ? "bg-bg items-center" : "items-start"
-      } ${data.fileList.length > 0 && !data.inDropZone ? "hidden" : ""}`}
+      className={`${filesStyle["drop-zone"]} ${styles}`}
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
-      {/* If not are a file in drop zone */}
-      {!data.inDropZone ? (
-        <>
-          <span className="block text-bg">Select or drag a file</span>
-          <span className="block text-sm text-gray-400">
-            {printTypes} files up to {maxFileSize} in size
-          </span>
-        </>
+      {data.inDropZone ? (
+        <FileIcon className="h-6 w-6 block text-text" />
       ) : (
-        <FileIcon className="h-6 w-6 text-text" />
+        children
       )}
     </div>
   );
@@ -192,32 +171,21 @@ function DragAndDrop({
 function Files({
   handleUpload,
   palette,
-  error,
   maxFileSize,
   accept,
   multipleFiles,
   progressEvent,
 }) {
-  const [handlers, setHandlers] = useState({});
   // Drag and Drop state
   const [data, dispatch] = useReducer(reducer, {
+    mode: 0,
     dropDepth: 0,
     inDropZone: false,
+    error: { code: 0, message: "" },
     fileList: [],
   });
-  // If palette is not provided, is equal primary
-  const optPalette = palette ? palette : "primary";
-  const styles = `bg-gray-100 rounded-md shadow-md relative hover:shadow-xl w-[40rem] h-20`;
-  // Error state
-
   // Refs
   const fileInputRef = useRef();
-
-  // Assign id from label prop
-  // useEffect(() => {
-  //   const newId = label.replaceAll(" ", "-");
-  //   checkboxRef.current.id = newId;
-  // }, [label]);
 
   // Read file
   const handleFileInput = (files) => {
@@ -227,7 +195,13 @@ function Files({
     const filteredFiles = files.filter((f) => {
       // Compare maxFileSize with new input file size
       if (f.size > calcFileSize(maxFileSize)) {
-        // In the future change the component to error state
+        dispatch({
+          type: "SET_ERROR",
+          payload: {
+            code: 1,
+            message: `The file weight more than ${maxFileSize}`,
+          },
+        });
         return false;
       }
 
@@ -243,39 +217,110 @@ function Files({
 
     // Toggle between one file or multiple files at once
     if (multipleFiles) {
-      dispatch({ type: "ADD_FILE_TO_LIST", filteredFiles });
+      dispatch({ type: "ADD_FILE_TO_LIST", payload: filteredFiles });
     } else {
-      dispatch({ type: "ADD_ONE_FILE_TO_LIST", filteredFiles });
+      dispatch({ type: "ADD_ONE_FILE_TO_LIST", payload: filteredFiles });
     }
+
+    // Update component mode
+    dispatch({ type: "SET_MODE", payload: 1 });
   };
 
   // Upload File
-  const uploadFileInput = () => {
+  const uploadFiles = () => {
     const files = data.fileList[0];
     const formData = new FormData();
     formData.set("file", files);
 
+    // Update component mode
+    dispatch({ type: "SET_MODE", payload: 2 });
+
+    // Pass file to handle prop
     handleUpload(formData);
   };
 
+  // Convert type/extension to .extension
+  const printTypes = accept.map((type, i) => {
+    let toPrint = type.match(/\/\w+/g)[0].replace("/", ".");
+
+    if (i === accept.length - 1) return toPrint + " ";
+
+    return toPrint + ", ";
+  });
+
+  const modes = () => {
+    // List Files
+    if (data.mode === 1)
+      return (
+        <ListFiles
+          files={data.fileList}
+          multipleFiles={multipleFiles}
+          uploadFiles={uploadFiles}
+          fileInput={fileInputRef}
+          dispatch={dispatch}
+        />
+      );
+
+    // Uploading
+    if (data.mode === 2)
+      return (
+        <div className="grid grid-cols-12 grid-rows-4 w-full h-full">
+          <span className="col-span-8 justify-self-start row-start-1 block text-bg">
+            Uploading
+          </span>
+          <span
+            className={`col-span-8 justify-self-start row-start-3 block text-sm ${
+              data.error.code === 2 ? "text-bg danger" : "text-gray-400"
+            }`}
+          >
+            {data.error.code === 2
+              ? data.error.message
+              : `${printTypes} files up to ${maxFileSize} in size`}
+          </span>
+          <span className="col-start-12 row-start-2 self-start text-bg text-xl font-bold opacity-50 right-0">
+            66%
+          </span>
+          <span className="bg-bg w-full absolute bottom-0 left-0 rounded-b-md h-1"></span>
+        </div>
+      );
+
+    return (
+      <div className="grid grid-cols-12 grid-rows-4 w-full h-full">
+        <span className="col-span-8 justify-self-start row-start-1 block text-bg">
+          Select or drag a file
+        </span>
+        <span
+          className={`col-span-8 justify-self-start row-start-3 block text-sm ${
+            data.error.code === 1 ? "text-bg danger" : "text-gray-400"
+          }`}
+        >
+          {data.error.code === 1
+            ? data.error.message
+            : `${printTypes} files up to ${maxFileSize} in size`}
+        </span>
+      </div>
+    );
+  };
+
+  // Reset mode
+  useEffect(() => {
+    if (data.fileList.length === 0 && data.mode > 0) {
+      dispatch({ type: "SET_MODE", payload: 0 });
+    }
+  }, [data.fileList, data.mode]);
+
+  // Reset error state
+  useEffect(() => {
+    if (data.error.code > 0) {
+      setTimeout(() => {
+        dispatch({ type: "SET_ERROR", payload: { code: 0, message: "" } });
+      }, 1000 * 5);
+    }
+  }, [data.error]);
+
   return (
-    <div className={`${styles} ${optPalette}`} {...handlers}>
-      <DragAndDrop
-        {...{
-          dispatch,
-          data,
-          handleFileInput,
-          accept,
-          maxFileSize,
-          setHandlers,
-        }}
-      />
-      <ListFiles
-        files={data.fileList}
-        multipleFiles={multipleFiles}
-        fileInput={fileInputRef}
-        dispatch={dispatch}
-      />
+    <DragAndDrop {...{ dispatch, data, handleFileInput, palette }}>
+      {modes()}
       <input
         ref={fileInputRef}
         onChange={(e) => handleFileInput([...e.target.files])}
@@ -286,13 +331,12 @@ function Files({
         id="myFile"
         name="filename"
       />
-    </div>
+    </DragAndDrop>
   );
 }
 Files.propTypes = {
   handleUpload: PropTypes.func,
   palette: PropTypes.string,
-  error: PropTypes.bool,
   maxFileSize: PropTypes.string,
   accept: PropTypes.array,
   multipleFiles: PropTypes.bool,

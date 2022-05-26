@@ -1,3 +1,7 @@
+.drop-zone svg {
+  pointer-events: none;
+}
+
 .custom-file-input {
   opacity: 0;
   top:0;
