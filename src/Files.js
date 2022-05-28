@@ -8,12 +8,16 @@ const reducer = (state, action) => {
   switch (action.type) {
     case "SET_MODE":
       return { ...state, mode: action.payload };
+    case "SET_STATUS":
+      return { ...state, status: action.payload };
     case "SET_ERROR":
       return { ...state, error: action.payload };
     case "SET_DROP_DEPTH":
       return { ...state, dropDepth: action.dropDepth };
     case "SET_IN_DROP_ZONE":
       return { ...state, inDropZone: action.inDropZone };
+    case "SET_FILE_UPLOADED":
+      return { ...state, fileUploaded: action.payload };
     case "ADD_FILE_TO_LIST":
       return {
         ...state,
@@ -24,7 +28,7 @@ const reducer = (state, action) => {
     case "DELETE_FILE_FROM_LIST":
       return {
         ...state,
-        fileList: state.fileList.filter((_, i) => i !== action.index),
+        fileList: state.fileList.filter((_, i) => i !== action.payload),
       };
     default:
       return state;
@@ -70,26 +74,56 @@ const convertToUnit = (bytes) => {
   return convertFunc(bytes, 1);
 };
 
-function ListFiles({ files, multipleFiles, uploadFiles, fileInput, dispatch }) {
-  if (files.length === 0) return;
+// Convert type/extension to .extension
+const printTypes = (accept) => {
+  const mapped = accept.map((type, i) => {
+    let toPrint = type.match(/\/\w+/g)[0].replace("/", ".");
 
-  const deleteFile = (index) =>
-    dispatch({ type: "DELETE_FILE_FROM_LIST", index });
+    if (i === accept.length - 1) return toPrint + " ";
+
+    return toPrint + ", ";
+  });
+
+  return mapped;
+};
+
+function ListFiles({ data, multipleFiles, uploadFiles, fileInput, dispatch }) {
+  if (data.fileList.length === 0) return;
+
+  const deleteFile = (index) => {
+    dispatch({ type: "DELETE_FILE_FROM_LIST", payload: index });
+  };
 
   const single = (
     <>
       <span className="block col-span-8 justify-self-start row-start-1">
-        {files[0].name}{" "}
-        <span className="text-gray-400">{convertToUnit(files[0].size)}</span>
+        {data.fileList[0].name}{" "}
+        <span className="text-gray-400">
+          {convertToUnit(data.fileList[0].size)}
+        </span>
       </span>
       <span className="text-sm text-bg block col-span-8 justify-self-start self-end row-start-2">
-        <button onClick={() => fileInput.current.click()}>Select file</button>
-        <button onClick={uploadFiles} className="ml-3">
-          Upload
-        </button>
-        <button onClick={() => deleteFile(0)} className="text-bg ml-3 danger">
-          Delete
-        </button>
+        {/* File Uploaded */}
+        {data.status === 3 ? (
+          <button onClick={() => deleteFile(0)} className="text-bg">
+            Delete File
+          </button>
+        ) : (
+          <>
+            <button onClick={() => fileInput.current.click()}>
+              Select file
+            </button>
+            <button onClick={uploadFiles} className="ml-3">
+              Upload
+            </button>
+            <button
+              onClick={() => deleteFile(0)}
+              className="text-bg ml-3 danger"
+            >
+              Delete
+            </button>
+          </>
+        )}
       </span>
       <span className="w-10 p-3 flex justify-center row-span-2 col-start-12 mr-6 items-center rounded-[50%] bg-black/5 block h-10">
         <FileIcon className="text-bg" />
@@ -98,7 +132,7 @@ function ListFiles({ files, multipleFiles, uploadFiles, fileInput, dispatch }) {
   );
   const multiple = (
     <ol className="bg-red-600 w-full">
-      {files.map((f) => {
+      {data.fileList.map((f) => {
         return <li key={f.name}>{f.name}</li>;
       })}
     </ol>
@@ -168,6 +202,56 @@ function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
   );
 }
 
+function Uploading({ data, accept, maxFileSize }) {
+  const [percentage, setPercentage] = useState(0);
+  const loadingBarRef = useRef();
+
+  const loadingAnimation = () => {
+    if (percentage > 0) setPercentage(0);
+    let width = 0;
+
+    const identity = setInterval(() => {
+      if (width >= 100) {
+        clearInterval(identity);
+        return;
+      }
+
+      width++;
+      setPercentage((prev) => prev + 1);
+      loadingBarRef.current.style = `width: ${String(width)}%;`;
+    }, 10);
+  };
+
+  return (
+    <div className="grid grid-cols-12 grid-rows-4 w-full h-full">
+      <span className="col-span-8 justify-self-start row-start-1 block text-bg">
+        Uploading
+      </span>
+      <span
+        className={`col-span-8 justify-self-start row-start-3 block text-sm ${
+          data.error.code === 2 ? "text-bg danger" : "text-gray-400"
+        }`}
+      >
+        {data.error.code === 2
+          ? data.error.message
+          : `${printTypes(accept)} files up to ${maxFileSize} in size`}
+      </span>
+      <span className="col-start-12 row-start-2 text-bg text-xl font-bold opacity-50 right-0">
+        {percentage}%
+      </span>
+      <span
+        ref={loadingBarRef}
+        className={`bg-bg absolute bottom-0 left-0 ${
+          percentage === 100 ? "rounded-br-md" : "rounded-r-md"
+        } rounded-bl-md h-1`}
+      ></span>
+      <button onClick={loadingAnimation} className="absolute bg-red-600 p-4">
+        Update
+      </button>
+    </div>
+  );
+}
+
 function Files({
   handleUpload,
   palette,
@@ -182,6 +266,7 @@ function Files({
     dropDepth: 0,
     inDropZone: false,
     error: { code: 0, message: "" },
+    status: 0,
     fileList: [],
   });
   // Refs
@@ -239,21 +324,12 @@ function Files({
     handleUpload(formData);
   };
 
-  // Convert type/extension to .extension
-  const printTypes = accept.map((type, i) => {
-    let toPrint = type.match(/\/\w+/g)[0].replace("/", ".");
-
-    if (i === accept.length - 1) return toPrint + " ";
-
-    return toPrint + ", ";
-  });
-
   const modes = () => {
     // List Files
     if (data.mode === 1)
       return (
         <ListFiles
-          files={data.fileList}
+          data={data}
           multipleFiles={multipleFiles}
           uploadFiles={uploadFiles}
           fileInput={fileInputRef}
@@ -264,24 +340,7 @@ function Files({
     // Uploading
     if (data.mode === 2)
       return (
-        <div className="grid grid-cols-12 grid-rows-4 w-full h-full">
-          <span className="col-span-8 justify-self-start row-start-1 block text-bg">
-            Uploading
-          </span>
-          <span
-            className={`col-span-8 justify-self-start row-start-3 block text-sm ${
-              data.error.code === 2 ? "text-bg danger" : "text-gray-400"
-            }`}
-          >
-            {data.error.code === 2
-              ? data.error.message
-              : `${printTypes} files up to ${maxFileSize} in size`}
-          </span>
-          <span className="col-start-12 row-start-2 self-start text-bg text-xl font-bold opacity-50 right-0">
-            66%
-          </span>
-          <span className="bg-bg w-full absolute bottom-0 left-0 rounded-b-md h-1"></span>
-        </div>
+        <Uploading data={data} accept={accept} maxFileSize={maxFileSize} />
       );
 
     return (
@@ -296,7 +355,7 @@ function Files({
         >
           {data.error.code === 1
             ? data.error.message
-            : `${printTypes} files up to ${maxFileSize} in size`}
+            : `${printTypes(accept)} files up to ${maxFileSize} in size`}
         </span>
       </div>
     );
@@ -305,6 +364,7 @@ function Files({
   // Reset mode
   useEffect(() => {
     if (data.fileList.length === 0 && data.mode > 0) {
+      dispatch({ type: "SET_STATUS", payload: 0 });
       dispatch({ type: "SET_MODE", payload: 0 });
     }
   }, [data.fileList, data.mode]);
