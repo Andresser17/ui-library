@@ -8,16 +8,14 @@ const reducer = (state, action) => {
   switch (action.type) {
     case "SET_MODE":
       return { ...state, mode: action.payload };
-    case "SET_STATUS":
-      return { ...state, status: action.payload };
+    case "SET_RESPONSE":
+      return { ...state, response: { ...state.response, ...action.payload } };
     case "SET_ERROR":
       return { ...state, error: action.payload };
     case "SET_DROP_DEPTH":
       return { ...state, dropDepth: action.dropDepth };
     case "SET_IN_DROP_ZONE":
       return { ...state, inDropZone: action.inDropZone };
-    case "SET_FILE_UPLOADED":
-      return { ...state, fileUploaded: action.payload };
     case "ADD_FILE_TO_LIST":
       return {
         ...state,
@@ -88,11 +86,11 @@ const printTypes = (accept) => {
 };
 
 function ListFiles({ data, multipleFiles, uploadFiles, fileInput, dispatch }) {
-  if (data.fileList.length === 0) return;
-
   const deleteFile = (index) => {
     dispatch({ type: "DELETE_FILE_FROM_LIST", payload: index });
   };
+
+  if (data.fileList.length === 0) return;
 
   const single = (
     <>
@@ -104,7 +102,7 @@ function ListFiles({ data, multipleFiles, uploadFiles, fileInput, dispatch }) {
       </span>
       <span className="text-sm text-bg block col-span-8 justify-self-start self-end row-start-2">
         {/* File Uploaded */}
-        {data.status === 3 ? (
+        {data.response?.data?.status === 200 ? (
           <button onClick={() => deleteFile(0)} className="text-bg">
             Delete File
           </button>
@@ -145,6 +143,49 @@ function ListFiles({ data, multipleFiles, uploadFiles, fileInput, dispatch }) {
   );
 }
 
+function Uploading({ dispatch, data, accept, maxFileSize }) {
+  const loadingBarRef = useRef();
+
+  useEffect(() => {
+    if (data.response.percent <= 100) {
+      loadingBarRef.current.style = `width: ${String(data.response.percent)}%;`;
+    }
+  }, [data.response.percent]);
+
+  // Response is completed, update mode
+  useEffect(() => {
+    const status = data.response?.data?.status;
+
+    if (status === 200) dispatch({ type: "SET_MODE", payload: 1 });
+  }, [data.response]);
+
+  return (
+    <div className="grid grid-cols-12 grid-rows-4 w-full h-full">
+      <span className="col-span-8 justify-self-start row-start-1 block text-bg">
+        Uploading
+      </span>
+      <span
+        className={`col-span-8 justify-self-start row-start-3 block text-sm ${
+          data.error.code === 2 ? "text-bg danger" : "text-gray-400"
+        }`}
+      >
+        {data.error.code === 2
+          ? data.error.message
+          : `${printTypes(accept)} files up to ${maxFileSize} in size`}
+      </span>
+      <span className="col-start-12 row-start-2 text-bg text-xl font-bold opacity-50 right-0">
+        {data.response.percent}%
+      </span>
+      <span
+        ref={loadingBarRef}
+        className={`bg-bg absolute bottom-0 left-0 ${
+          data.response.percent === 100 ? "rounded-br-md" : "rounded-r-md"
+        } rounded-bl-md h-1`}
+      ></span>
+    </div>
+  );
+}
+
 function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
   // If palette is not provided, is equal primary
   const optPalette = palette ? palette : "primary";
@@ -155,6 +196,9 @@ function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    // If file is being uploaded or is completed
+    if (data.response.percent > 0 || data.response?.data?.status) return;
+
     e.dataTransfer.dropEffect = "copy";
     dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: true });
   };
@@ -174,6 +218,9 @@ function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // If file is being uploaded or is completed
+    if (data.response.percent > 0 || data.response?.data?.status) return;
 
     let files = [...e.dataTransfer.files];
 
@@ -202,71 +249,13 @@ function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
   );
 }
 
-function Uploading({ data, accept, maxFileSize }) {
-  const [percentage, setPercentage] = useState(0);
-  const loadingBarRef = useRef();
-
-  const loadingAnimation = () => {
-    if (percentage > 0) setPercentage(0);
-    let width = 0;
-
-    const identity = setInterval(() => {
-      if (width >= 100) {
-        clearInterval(identity);
-        return;
-      }
-
-      width++;
-      setPercentage((prev) => prev + 1);
-      loadingBarRef.current.style = `width: ${String(width)}%;`;
-    }, 10);
-  };
-
-  return (
-    <div className="grid grid-cols-12 grid-rows-4 w-full h-full">
-      <span className="col-span-8 justify-self-start row-start-1 block text-bg">
-        Uploading
-      </span>
-      <span
-        className={`col-span-8 justify-self-start row-start-3 block text-sm ${
-          data.error.code === 2 ? "text-bg danger" : "text-gray-400"
-        }`}
-      >
-        {data.error.code === 2
-          ? data.error.message
-          : `${printTypes(accept)} files up to ${maxFileSize} in size`}
-      </span>
-      <span className="col-start-12 row-start-2 text-bg text-xl font-bold opacity-50 right-0">
-        {percentage}%
-      </span>
-      <span
-        ref={loadingBarRef}
-        className={`bg-bg absolute bottom-0 left-0 ${
-          percentage === 100 ? "rounded-br-md" : "rounded-r-md"
-        } rounded-bl-md h-1`}
-      ></span>
-      <button onClick={loadingAnimation} className="absolute bg-red-600 p-4">
-        Update
-      </button>
-    </div>
-  );
-}
-
-function Files({
-  handleUpload,
-  palette,
-  maxFileSize,
-  accept,
-  multipleFiles,
-  progressEvent,
-}) {
-  // Drag and Drop state
+function Files({ handleUpload, palette, maxFileSize, accept, multipleFiles }) {
   const [data, dispatch] = useReducer(reducer, {
     mode: 0,
     dropDepth: 0,
     inDropZone: false,
     error: { code: 0, message: "" },
-    status: 0,
+    response: { percent: 0, data: undefined },
     fileList: [],
   });
   // Refs
@@ -321,7 +310,12 @@ function Files({
     dispatch({ type: "SET_MODE", payload: 2 });
 
     // Pass file to handle prop
-    handleUpload(formData);
+    handleUpload(formData, (response) => {
+      dispatch({
+        type: "SET_RESPONSE",
+        payload: response,
+      });
+    });
   };
 
   const modes = () => {
@@ -340,7 +334,11 @@ function Files({
     // Uploading
     if (data.mode === 2)
       return (
-        <Uploading data={data} accept={accept} maxFileSize={maxFileSize} />
+        <Uploading
+          {...{ dispatch, data }}
+          accept={accept}
+          maxFileSize={maxFileSize}
+        />
       );
 
     return (
@@ -364,7 +362,10 @@ function Files({
   // Reset mode
   useEffect(() => {
     if (data.fileList.length === 0 && data.mode > 0) {
-      dispatch({ type: "SET_STATUS", payload: 0 });
+      dispatch({
+        type: "SET_RESPONSE",
+        payload: { percent: 0, data: undefined },
+      });
       dispatch({ type: "SET_MODE", payload: 0 });
     }
   }, [data.fileList, data.mode]);
@@ -400,7 +401,6 @@ Files.propTypes = {
   maxFileSize: PropTypes.string,
   accept: PropTypes.array,
   multipleFiles: PropTypes.bool,
-  progressEvent: PropTypes.object,
 };
 
 export default Files;
