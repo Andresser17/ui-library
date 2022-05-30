@@ -1,6 +1,6 @@
 import { useEffect, useRef, useReducer } from "react";
 import PropTypes from "prop-types";
-import filesStyle from "./Files.module.css";
+import filesStyle from "./SingleFile.module.css";
 // Icons
 import { ReactComponent as FileIcon } from "./icons/file-icon.svg";
 
@@ -16,17 +16,12 @@ const reducer = (state, action) => {
       return { ...state, dropDepth: action.dropDepth };
     case "SET_IN_DROP_ZONE":
       return { ...state, inDropZone: action.inDropZone };
-    case "ADD_FILE_TO_LIST":
+    case "ADD_FILE":
+      return { ...state, file: action.payload };
+    case "DELETE_FILE":
       return {
         ...state,
-        fileList: state.fileList.concat(action.payload),
-      };
-    case "ADD_ONE_FILE_TO_LIST":
-      return { ...state, fileList: action.payload };
-    case "DELETE_FILE_FROM_LIST":
-      return {
-        ...state,
-        fileList: state.fileList.filter((_, i) => i !== action.payload),
+        file: undefined,
       };
     default:
       return state;
@@ -85,33 +80,24 @@ const printTypes = (accept) => {
   return mapped;
 };
 
-function ListFiles({
-  data,
-  multipleFiles,
-  uploadFiles,
-  deleteFiles,
-  fileInput,
-  dispatch,
-}) {
-  const handleDeleteFile = (index, fileUploaded) => {
-    if (fileUploaded) deleteFiles(data.fileList[index]);
-    dispatch({ type: "DELETE_FILE_FROM_LIST", payload: index });
+function ListFiles({ data, uploadFiles, deleteFiles, fileInput, dispatch }) {
+  const handleDeleteFile = (fileUploaded) => {
+    if (fileUploaded) deleteFiles(data.file);
+    dispatch({ type: "DELETE_FILE" });
   };
 
-  if (data.fileList.length === 0) return;
+  if (!data.file) return;
 
-  const single = (
-    <>
+  return (
+    <div className="w-full h-full relative grid grid-cols-12 grid-rows-2">
       <span className="block col-span-8 justify-self-start row-start-1">
-        {data.fileList[0].name}{" "}
-        <span className="text-gray-400">
-          {convertToUnit(data.fileList[0].size)}
-        </span>
+        {data.file.name}{" "}
+        <span className="text-gray-400">{convertToUnit(data.file.size)}</span>
       </span>
       <span className="text-sm text-bg block col-span-8 justify-self-start self-end row-start-2">
         {/* File Uploaded */}
         {data.response?.data?.status === 200 ? (
-          <button onClick={() => handleDeleteFile(0, true)} className="text-bg">
+          <button onClick={() => handleDeleteFile(true)} className="text-bg">
             Delete File
           </button>
         ) : (
@@ -123,7 +109,7 @@ function ListFiles({
               Upload
             </button>
             <button
-              onClick={() => handleDeleteFile(0)}
+              onClick={() => handleDeleteFile()}
               className="text-bg ml-3 danger"
             >
               Delete
@@ -134,19 +120,6 @@ function ListFiles({
       <span className="w-10 p-3 flex justify-center row-span-2 col-start-12 mr-6 items-center rounded-[50%] bg-black/5 block h-10">
         <FileIcon className="text-bg" />
       </span>
-    </>
-  );
-  const multiple = (
-    <ol className="bg-red-600 w-full">
-      {data.fileList.map((f) => {
-        return <li key={f.name}>{f.name}</li>;
-      })}
-    </ol>
-  );
-
-  return (
-    <div className="w-full, h-full grid grid-cols-12 grid-rows-2">
-      {multipleFiles ? multiple : single}
     </div>
   );
 }
@@ -266,59 +239,51 @@ function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
   );
 }
 
-function Files({
-  palette,
-  maxFileSize,
-  accept,
-  multipleFiles,
-  onUpload,
-  onDelete,
-}) {
+function Files({ palette, maxFileSize, accept, onUpload, onDelete }) {
   const [data, dispatch] = useReducer(reducer, {
+    file: undefined,
     mode: 0,
     dropDepth: 0,
     inDropZone: false,
     error: { code: 0, message: "" },
     response: { percent: 0, data: undefined, err: undefined },
-    fileList: [],
   });
   // Refs
   const fileInputRef = useRef();
 
   // Read file
   const handleFileInput = (files) => {
-    if (files.length === 0) return;
+    const [file] = files;
+    if (!file) return;
 
-    const existingFiles = data.fileList.map((f) => f.name);
-    const filteredFiles = files.filter((f) => {
-      // Compare maxFileSize with new input file size
-      if (f.size > calcFileSize(maxFileSize)) {
-        dispatch({
-          type: "SET_ERROR",
-          payload: {
-            code: 1,
-            message: `The file weight more than ${maxFileSize}`,
-          },
-        });
-        return false;
-      }
-
-      // Check if fileType is accepted
-      if (!accept.includes(f.type)) {
-        // In the future change the component to error state
-        return false;
-      }
-
-      // Check if input files are in fileList;
-      return !existingFiles.includes(f.name);
-    });
-
-    // Toggle between one file or multiple files at once
-    if (multipleFiles) {
-      dispatch({ type: "ADD_FILE_TO_LIST", payload: filteredFiles });
-    } else {
-      dispatch({ type: "ADD_ONE_FILE_TO_LIST", payload: filteredFiles });
+    // Compare maxFileSize with new input file size
+    if (file.size > calcFileSize(maxFileSize)) {
+      dispatch({
+        type: "SET_ERROR",
+        payload: {
+          code: 1,
+          message: `The file weight more than ${maxFileSize}`,
+        },
+      });
+      return false;
     }
+
+    // Check if fileType is accepted
+    if (!accept.includes(file.type)) {
+      dispatch({
+        type: "SET_ERROR",
+        payload: {
+          code: 1,
+          message: `${file.type} file type is not accepted`,
+        },
+      });
+      return false;
+    }
+
+    if (data.file?.name === file.name) return;
+
+    // Update data.file
+    dispatch({ type: "ADD_FILE", payload: file });
 
     // Update component mode
     dispatch({ type: "SET_MODE", payload: 1 });
@@ -326,9 +291,8 @@ function Files({
 
   // Upload File
   const uploadFiles = () => {
-    const files = data.fileList[0];
     const formData = new FormData();
-    formData.set("file", files);
+    formData.set("file", data.file);
 
     // Update component mode
     dispatch({ type: "SET_MODE", payload: 2 });
@@ -347,12 +311,11 @@ function Files({
     if (data.mode === 1)
       return (
         <ListFiles
+          dispatch={dispatch}
           data={data}
-          multipleFiles={multipleFiles}
           uploadFiles={uploadFiles}
           deleteFiles={onDelete}
           fileInput={fileInputRef}
-          dispatch={dispatch}
         />
       );
 
@@ -395,8 +358,8 @@ function Files({
 
   // Reset mode
   useEffect(() => {
-    if (data.fileList.length === 0 && data.mode > 0) resetComponent();
-  }, [data.fileList, data.mode]);
+    if (!data.file && data.mode > 0) resetComponent();
+  }, [data.file, data.mode]);
 
   // Reset error state
   useEffect(() => {
@@ -412,7 +375,7 @@ function Files({
         ref={fileInputRef}
         onChange={(e) => handleFileInput([...e.target.files])}
         className={`${filesStyle["custom-file-input"]} ${
-          data.fileList.length > 0 ? "hidden" : ""
+          data.file ? "hidden" : ""
         }`}
         type="file"
         id="myFile"
@@ -422,11 +385,11 @@ function Files({
   );
 }
 Files.propTypes = {
-  handleUpload: PropTypes.func,
   palette: PropTypes.string,
   maxFileSize: PropTypes.string,
   accept: PropTypes.array,
-  multipleFiles: PropTypes.bool,
+  onUpload: PropTypes.func,
+  onDelete: PropTypes.func,
 };
 
 export default Files;

@@ -5,7 +5,7 @@ import "./App.css";
 // import { ReactComponent as LoadingIcon } from "./icons/loading-icon.svg";
 // import Button from "./Button";
 // import Badge from "./Badge";
-import Files from "./Files";
+import SingleFile from "./SingleFile";
 
 const handleUpload = (formData, setResponse) => {
   axios
@@ -45,12 +45,12 @@ const handleDelete = async (file) => {
 function App() {
   return (
     <div className="App p-4 h-screen bg-green-400 flex items-start justify-center">
-      <Files
-        maxFileSize="5GB"
+      <SingleFile
+        maxFileSize="1MB"
         accept={["image/png", "image/jpeg", "image/gif", "video/mp4"]}
         onUpload={handleUpload}
         onDelete={handleDelete}
-        palette="warning"
+        palette="success"
       />
     </div>
   );
