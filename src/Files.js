@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useReducer } from "react";
+import { useEffect, useRef, useReducer } from "react";
 import PropTypes from "prop-types";
 import filesStyle from "./Files.module.css";
 // Icons
@@ -85,8 +85,16 @@ const printTypes = (accept) => {
   return mapped;
 };
 
-function ListFiles({ data, multipleFiles, uploadFiles, fileInput, dispatch }) {
-  const deleteFile = (index) => {
+function ListFiles({
+  data,
+  multipleFiles,
+  uploadFiles,
+  deleteFiles,
+  fileInput,
+  dispatch,
+}) {
+  const handleDeleteFile = (index, fileUploaded) => {
+    if (fileUploaded) deleteFiles(data.fileList[index]);
     dispatch({ type: "DELETE_FILE_FROM_LIST", payload: index });
   };
 
@@ -103,7 +111,7 @@ function ListFiles({ data, multipleFiles, uploadFiles, fileInput, dispatch }) {
       <span className="text-sm text-bg block col-span-8 justify-self-start self-end row-start-2">
         {/* File Uploaded */}
         {data.response?.data?.status === 200 ? (
-          <button onClick={() => deleteFile(0)} className="text-bg">
+          <button onClick={() => handleDeleteFile(0, true)} className="text-bg">
             Delete File
           </button>
         ) : (
@@ -115,7 +123,7 @@ function ListFiles({ data, multipleFiles, uploadFiles, fileInput, dispatch }) {
               Upload
             </button>
             <button
-              onClick={() => deleteFile(0)}
+              onClick={() => handleDeleteFile(0)}
               className="text-bg ml-3 danger"
             >
               Delete
@@ -155,7 +163,6 @@ function Uploading({ dispatch, data, accept, maxFileSize }) {
   // Response is completed, update mode
   useEffect(() => {
     const status = data.response?.data?.status;
-
     if (status === 200) dispatch({ type: "SET_MODE", payload: 1 });
   }, [data.response]);
 
@@ -166,11 +173,11 @@ function Uploading({ dispatch, data, accept, maxFileSize }) {
       </span>
       <span
         className={`col-span-8 justify-self-start row-start-3 block text-sm ${
-          data.error.code === 2 ? "text-bg danger" : "text-gray-400"
+          data.response.err ? "text-bg danger" : "text-gray-400"
         }`}
       >
-        {data.error.code === 2
-          ? data.error.message
+        {data.response.err
+          ? "An error has occurred, upload the file again"
           : `${printTypes(accept)} files up to ${maxFileSize} in size`}
       </span>
       <span className="col-start-12 row-start-2 text-bg text-xl font-bold opacity-50 right-0">
@@ -197,7 +204,12 @@ function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
     e.preventDefault();
     e.stopPropagation();
     // If file is being uploaded or is completed
-    if (data.response.percent > 0 || data.response?.data?.status) return;
+    if (
+      data.response.percent > 0 ||
+      data.response.data?.status ||
+      data.response.data?.err
+    )
+      return;
 
     e.dataTransfer.dropEffect = "copy";
     dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: true });
@@ -220,7 +232,12 @@ function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
     e.stopPropagation();
 
     // If file is being uploaded or is completed
-    if (data.response.percent > 0 || data.response?.data?.status) return;
+    if (
+      data.response.percent > 0 ||
+      data.response.data?.status ||
+      data.response.data?.err
+    )
+      return;
 
     let files = [...e.dataTransfer.files];
 
@@ -249,13 +266,20 @@ function DragAndDrop({ dispatch, data, handleFileInput, palette, children }) {
   );
 }
 
-function Files({ handleUpload, palette, maxFileSize, accept, multipleFiles }) {
+function Files({
+  palette,
+  maxFileSize,
+  accept,
+  multipleFiles,
+  onUpload,
+  onDelete,
+}) {
   const [data, dispatch] = useReducer(reducer, {
     mode: 0,
     dropDepth: 0,
     inDropZone: false,
     error: { code: 0, message: "" },
-    response: { percent: 0, data: undefined },
+    response: { percent: 0, data: undefined, err: undefined },
     fileList: [],
   });
   // Refs
@@ -310,7 +334,7 @@ function Files({ handleUpload, palette, maxFileSize, accept, multipleFiles }) {
     dispatch({ type: "SET_MODE", payload: 2 });
 
     // Pass file to handle prop
-    handleUpload(formData, (response) => {
+    onUpload(formData, (response) => {
       dispatch({
         type: "SET_RESPONSE",
         payload: response,
@@ -326,6 +350,7 @@ function Files({ handleUpload, palette, maxFileSize, accept, multipleFiles }) {
           data={data}
           multipleFiles={multipleFiles}
           uploadFiles={uploadFiles}
+          deleteFiles={onDelete}
           fileInput={fileInputRef}
           dispatch={dispatch}
         />
@@ -359,25 +384,26 @@ function Files({ handleUpload, palette, maxFileSize, accept, multipleFiles }) {
     );
   };
 
+  const resetComponent = () => {
+    dispatch({
+      type: "SET_RESPONSE",
+      payload: { percent: 0, data: undefined, err: undefined },
+    });
+    dispatch({ type: "SET_MODE", payload: 0 });
+    dispatch({ type: "SET_ERROR", payload: { code: 0, message: "" } });
+  };
+
   // Reset mode
   useEffect(() => {
-    if (data.fileList.length === 0 && data.mode > 0) {
-      dispatch({
-        type: "SET_RESPONSE",
-        payload: { percent: 0, data: undefined },
-      });
-      dispatch({ type: "SET_MODE", payload: 0 });
-    }
+    if (data.fileList.length === 0 && data.mode > 0) resetComponent();
   }, [data.fileList, data.mode]);
 
   // Reset error state
   useEffect(() => {
-    if (data.error.code > 0) {
-      setTimeout(() => {
-        dispatch({ type: "SET_ERROR", payload: { code: 0, message: "" } });
-      }, 1000 * 5);
+    if (data.error.code > 0 || data.response.err) {
+      setTimeout(resetComponent, 1000 * 5);
     }
-  }, [data.error]);
+  }, [data.error, data.response.err]);
 
   return (
     <DragAndDrop {...{ dispatch, data, handleFileInput, palette }}>

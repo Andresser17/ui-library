@@ -18,14 +18,28 @@ const handleUpload = (formData, setResponse) => {
         console.log(`upload process: ${percentCompleted}%`);
       },
     })
-    .then((data) => {
-      setResponse({ data });
-      console.log(data);
+    .then((response) => {
+      setResponse({ data: response });
+      console.log(response.data.message);
     })
     .catch((err) => {
       setResponse({ err });
       console.log(err);
     });
+};
+
+const handleDelete = async (file) => {
+  const response = await axios.delete(
+    "http://localhost:3001/delete-single-file",
+    {
+      headers: {
+        "Content-type": "application/json",
+      },
+      data: { filename: file.name },
+    }
+  );
+
+  console.log(response.data.message);
 };
 
 function App() {
@@ -34,7 +48,8 @@ function App() {
       <Files
         maxFileSize="5GB"
         accept={["image/png", "image/jpeg", "image/gif", "video/mp4"]}
-        handleUpload={handleUpload}
+        onUpload={handleUpload}
+        onDelete={handleDelete}
         palette="warning"
       />
     </div>
