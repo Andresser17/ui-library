@@ -47,7 +47,7 @@ function App() {
     <div className="App p-4 h-screen bg-green-400 flex items-start justify-center">
       <SingleFile
         maxFileSize="1MB"
-        accept={["image/png", "image/jpeg", "image/gif", "video/mp4"]}
+        accept={["image/png", "image/jpeg", "image/gif"]}
         onUpload={handleUpload}
         onDelete={handleDelete}
         palette="success"

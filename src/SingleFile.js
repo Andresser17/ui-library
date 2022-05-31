@@ -29,37 +29,42 @@ const reducer = (state, action) => {
 };
 
 // Take a file size in Bytes, KB, MB or GB
-const calcFileSize = (str) => {
-  const KB = /[. 0-9]+(KB)/g;
-  const MB = /[. 0-9]+(MB)/g;
-  const GB = /[. 0-9]+(GB)/g;
-  const onlyNum = Number(str.match(/\d+/g));
+export const calcFileSize = (str) => {
+  if (str === undefined)
+    throw new Error("argument provided can't be undefined");
+  if (typeof str !== "string")
+    throw new Error("argument provided can only be an string");
+
+  const myRegex = /(\d*\.*\d+)(.b)/gi;
+  const match = myRegex.exec(str);
+  const onlyNum = match[1];
+  const unit = match[2].toUpperCase();
+  const units = { KB: 1, MB: 2, GB: 3, TB: 4 };
+
   const convertFunc = (size, n) => {
     if (n === 0) return size;
 
     return convertFunc(size * 1024, n - 1);
   };
 
-  if (KB.test(str)) {
-    return convertFunc(onlyNum, 1);
-  }
-
-  if (MB.test(str)) {
-    return convertFunc(onlyNum, 2);
-  }
-
-  if (GB.test(str)) {
-    return convertFunc(onlyNum, 3);
-  }
-
-  return Number(str);
+  return convertFunc(onlyNum, units[unit]);
 };
 
 // Take a number in bytes
-const convertToUnit = (bytes) => {
+export const convertToUnit = (bytes) => {
+  if (bytes === undefined)
+    throw new Error("argument provided can't be undefined");
+  if (typeof bytes !== "number")
+    throw new Error("argument provided can only be a number");
+
   const units = { 1: "KB", 2: "MB", 3: "GB", 4: "TB" };
   const convertFunc = (size, n) => {
-    if (size < 1) return String((size * 1024).toFixed(2)) + units[n - 2];
+    if (size < 1) {
+      const finalCalc = Number.isInteger(size * 1024)
+        ? size * 1024
+        : (size * 1024).toFixed(2);
+      return String(finalCalc) + units[n - 2];
+    }
 
     return convertFunc(size / 1024, n + 1);
   };
@@ -68,7 +73,11 @@ const convertToUnit = (bytes) => {
 };
 
 // Convert type/extension to .extension
-const printTypes = (accept) => {
+export const printTypes = (accept) => {
+  if (!accept) return `"Provide valid file formats"`;
+  if (typeof accept !== "object")
+    return `"this function only accept an array like argument"`;
+
   const mapped = accept.map((type, i) => {
     let toPrint = type.match(/\/\w+/g)[0].replace("/", ".");
 
@@ -77,7 +86,7 @@ const printTypes = (accept) => {
     return toPrint + ", ";
   });
 
-  return mapped;
+  return mapped.join("");
 };
 
 function ListFiles({ data, uploadFiles, deleteFiles, fileInput, dispatch }) {
@@ -137,7 +146,7 @@ function Uploading({ dispatch, data, accept, maxFileSize }) {
   useEffect(() => {
     const status = data.response?.data?.status;
     if (status === 200) dispatch({ type: "SET_MODE", payload: 1 });
-  }, [data.response]);
+  }, [data.response, dispatch]);
 
   return (
     <div className="grid grid-cols-12 grid-rows-4 w-full h-full">
@@ -372,6 +381,7 @@ function Files({ palette, maxFileSize, accept, onUpload, onDelete }) {
     <DragAndDrop {...{ dispatch, data, handleFileInput, palette }}>
       {modes()}
       <input
+        data-testid="upload-input"
         ref={fileInputRef}
         onChange={(e) => handleFileInput([...e.target.files])}
         className={`${filesStyle["custom-file-input"]} ${
