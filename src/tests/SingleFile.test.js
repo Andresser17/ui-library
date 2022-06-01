@@ -189,7 +189,19 @@ describe("Test SingleFile props, state and styles", () => {
       let uploadData;
 
       const handleUpload = async (formData, setResponse) => {
-        const response = await axios.post("/upload-single-file", formData);
+        const response = await axios.post(
+          "/upload-single-file",
+          formData
+          // {
+          // onUploadProgress: (progressEvent) => {
+          //   const percentCompleted = Math.round(
+          //     (progressEvent.loaded * 100) / progressEvent.total
+          //   );
+          //   setResponse({ percent: percentCompleted });
+          //   console.log(`upload process: ${percentCompleted}%`);
+          // },
+          // }
+        );
 
         uploadData = response.data;
         setResponse({ data: response });
@@ -254,7 +266,7 @@ describe("Test SingleFile props, state and styles", () => {
 
     test("Network error", async () => {
       const handleUpload = async (formData, setResponse) => {
-        const response = axios
+        axios
           .post("/upload-error", formData)
           .then((response) => setResponse({ data: response }))
           .catch((err) => setResponse({ err }));
