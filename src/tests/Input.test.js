@@ -38,7 +38,7 @@ describe("input state and styles", () => {
     });
   });
 
-  test("onClick function", async () => {
+  test("getData function", async () => {
     const user = userEvent.setup();
 
     let text = "";
