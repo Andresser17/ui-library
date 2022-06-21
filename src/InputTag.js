@@ -7,6 +7,7 @@ function Tag({ text, close, readOnly }) {
   return (
     <span className="flex bg-bg text-text px-2 rounded-sm text-sm mr-1">
       {text}
+      {/* close tag */}
       {!readOnly && (
         <ErrorIcon onClick={close} className="ml-1 cursor-pointer w-4" />
       )}
@@ -29,7 +30,9 @@ function Tags({ tags, deleteTag, readOnly }) {
 
 function InputTag({
   palette,
-  getData,
+  getInput,
+  getTags,
+  getRef,
   placeholder,
   disabled,
   defaultTags,
@@ -62,23 +65,30 @@ function InputTag({
   }, [defaultTags]);
 
   const handleChange = (e) => {
+    getInput(e.target.value, mergeData);
     setValue(e.target.value);
   };
 
   const handleTagClose = (index) => {
-    setTags((prev) => prev.filter((_, i) => i !== index));
+    const newTags = tags.filter((_, i) => i !== index);
+    setTags(newTags);
+    // Delete tag in parent state
+    getTags([...newTags], mergeData);
   };
 
-  const addTag = ({ key }) => {
-    const mergeData = (newStatus, newTags) => {
-      setStatus((prev) => ({ ...prev, ...newStatus }));
-      if (!newTags || newTags.length === 0) return;
-      setTags([...newTags]);
-    };
+  const mergeData = (newStatus, newValue) => {
+    setStatus((prev) => ({ ...prev, ...newStatus }));
+    if (!newValue || newValue.length === 0) return;
+    setValue([...newValue]);
+  };
 
+  // add tag when user click enter
+  const addTag = ({ key }) => {
     if (key === "Enter") {
       if (value.length === 0) return;
-      getData([...tags, value], mergeData);
+      if (status.code === 2) return;
+      setTags([...tags, value]);
+      getTags([...tags, value]);
       setValue("");
     }
   };
@@ -97,7 +107,7 @@ function InputTag({
           onKeyPress={addTag}
           value={value}
           onChange={handleChange}
-          className="bg-black/0 w-24 inline-block focus:outline-none placeholder:text-gray-400"
+          className="bg-black/0 w-auto flex-auto inline-block focus:outline-none placeholder:text-gray-400"
           {...{
             disabled,
             type,
@@ -126,7 +136,9 @@ function InputTag({
 }
 InputTag.propTypes = {
   palette: PropTypes.string,
-  getData: PropTypes.func,
+  getInput: PropTypes.func,
+  getTags: PropTypes.func,
+  getRef: PropTypes.func,
   placeholder: PropTypes.string,
   defaultTags: PropTypes.array,
   disabled: PropTypes.bool,

@@ -4,17 +4,15 @@ import InputTag from "./InputTag";
 import Input from "./Input";
 
 function App() {
-  const handleData = (tags, setData) => {
-    if (tags.length <= 3) {
-      setData(undefined, tags)
-    }
+  const handleInput = (data, setData) => {
+    setData({ code: 1 }, data);
   };
 
   return (
     <div className="App p-4 h-screen bg-blue-600 flex items-start justify-center">
       <div className="w-96">
         <InputTag
-          getData={handleData}
+          getInput={handleInput}
           type="text"
           placeholder="Your name"
           description="You can put your name"
@@ -22,7 +20,6 @@ function App() {
         />
         <div className="mt-10">
           <Input
-            getData={handleData}
             type="text"
             placeholder="Your name"
             readOnly
