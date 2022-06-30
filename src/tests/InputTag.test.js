@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import InputTag from "../InputTag";
 let globalDatabase = {};
 
-describe("input state and styles", () => {
+xdescribe("input state and styles", () => {
   beforeAll(() => {
     globalDatabase = { err: console.error };
   });
@@ -14,8 +14,12 @@ describe("input state and styles", () => {
 
   describe("palette classes applied to component", () => {
     test("applied primary", () => {
+      const handleInput = (input, mergeData) => {
+        console.log(input)
+      }
+
       // Primary
-      render(<InputTag description="primary" placeholder="primary" />);
+      render(<InputTag getInput={handleInput} description="primary" placeholder="primary" />);
       // Get button
       const primary = screen.getByText(/primary/i);
       const primaryCont = primary.parentElement;

@@ -1,32 +1,27 @@
 import "./App.css";
 // import { useState } from "react";
-import InputTag from "./InputTag";
-import Input from "./Input";
+import Island from "./Island";
+// Icons
+import { ReactComponent as ErrorIcon } from "./icons/error-icon.svg";
 
 function App() {
-  const handleInput = (data, setData) => {
-    setData({ code: 1 }, data);
-  };
-
   return (
-    <div className="App p-4 h-screen bg-blue-600 flex items-start justify-center">
-      <div className="w-96">
-        <InputTag
-          getInput={handleInput}
-          type="text"
-          placeholder="Your name"
-          description="You can put your name"
-          palette="success"
-        />
-        <div className="mt-10">
-          <Input
-            type="text"
-            placeholder="Your name"
-            readOnly
-            description="You can put your name"
-          />
-        </div>
-      </div>
+    <div className="App p-4 h-screen bg-green-300 flex items-start justify-center">
+      <Island
+        title="Your text"
+        head="Head"
+        description="An easy description"
+        mode="pending"
+        percent={50}
+      >
+        {/* {{ */}
+        {/*   icon: <ErrorIcon className="w-8 ml-6 mb-4" />, */}
+        {/*   params: [ */}
+        {/*     { text: "Params", icon: <ErrorIcon className="w-6" /> }, */}
+        {/*     { text: "Params", icon: <ErrorIcon className="w-6" /> }, */}
+        {/*   ], */}
+        {/* }} */}
+      </Island>
     </div>
   );
 }
