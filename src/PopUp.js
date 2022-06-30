@@ -1,18 +1,19 @@
 import { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 // Components
-import PopUpCont from "./PopUpCont";
+import PopUpModal from "./PopUpModal";
 // Icons
 // import { ReactComponent as DefaultIcon } from "./icons/division-icon.svg";
 
-function PopUp({
-  palette,
-  mode = "stop",
-}) {
+function PopUp({ palette, mode = "stop" }) {
   // If palette is not provided, is equal primary
   const optPalette = palette ? palette : "primary";
 
-  return (<PopUpCont />);
+  return (
+    <PopUpModal>
+      <h2>hello world</h2>
+    </PopUpModal>
+  );
 }
 PopUp.propTypes = {
   palette: PropTypes.string,
