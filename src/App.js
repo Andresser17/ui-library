@@ -10,7 +10,9 @@ function App() {
       <PopUp
         title="File Deleted"
         description="That's all :)"
-        buttons={[{ text: "Okay, thank you" }]}
+        buttons={[{ text: "Okay, thank you", click() {
+          console.log("hello world")
+        } }]}
       />
       <PopUp
         mode="info"

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 // Components
 import PopUpModal from "./PopUpModal";
@@ -15,25 +16,39 @@ function PopUp({
   buttons,
   mode = "success",
 }) {
+  const [close, setClose] = useState(false);
+  const clickButton = (cb) => {
+    cb();
+    // close modal
+    setClose(true);
+  };
   const mappedButtons =
     buttons &&
     buttons.map((b, i) => {
       if (buttons.length > 1 && i === buttons.length - 1)
         return (
-          <button key={key(b.text)} className="mx-1 text-bg h-fit">
+          <button
+            onClick={() => clickButton(b.click)}
+            key={key(b.text)}
+            className="mx-1 text-bg h-fit"
+          >
             {b.text}
           </button>
         );
 
       return (
-        <span key={key(b.text)} className="mx-1 block">
+        <span
+          onClick={() => clickButton(b.click)}
+          key={key(b.text)}
+          className="mx-1 block"
+        >
           <Button text={b.text} palette={palette} />
         </span>
       );
     });
 
   return (
-    <PopUpModal palette={palette}>
+    <PopUpModal close={close} palette={palette}>
       <div className={`flex flex-col items-center ${palette}`}>
         {mode === "error" && (
           <>
