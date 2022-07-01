@@ -3,9 +3,7 @@ import PropTypes from "prop-types";
 // Icons
 import { ReactComponent as CloseIcon } from "./icons/error-icon.svg";
 
-function PopUpModal({ palette, countdown = 0, children }) {
-  // If palette is not provided, is equal primary
-  const optPalette = palette ? palette : "primary-white";
+function PopUpModal({ palette = "primary", countdown = 0, children }) {
   // refs
   const modalRef = useRef();
 
@@ -21,11 +19,11 @@ function PopUpModal({ palette, countdown = 0, children }) {
   return (
     <div
       ref={modalRef}
-      className={`relative bg-bg text-text px-2 py-4 min-w-[20rem] min-h-[4rem] rounded ${optPalette}`}
+      className={`relative bg-gray-100 text-gray-800 px-2 py-4 min-w-[20rem] min-h-[4rem] rounded ${palette}`}
     >
       <button
         onClick={closeModal}
-        className="w-6 block absolute top-1 right-1 rounded bg-text text-gray-100 p-1"
+        className="w-6 block absolute top-1 right-1 rounded bg-bg text-text p-1"
       >
         <CloseIcon className="w-full" />
       </button>

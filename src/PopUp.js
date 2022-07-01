@@ -6,6 +6,7 @@ import Button from "./Button";
 import { ReactComponent as CheckIcon } from "./icons/success-icon.svg";
 import { ReactComponent as ErrorIcon } from "./icons/error-icon.svg";
 import { ReactComponent as InfoIcon } from "./icons/info-icon.svg";
+const key = (text) => text.replaceAll(" ", "-");
 
 function PopUp({
   palette = "primary",
@@ -18,18 +19,22 @@ function PopUp({
     buttons &&
     buttons.map((b, i) => {
       if (buttons.length > 1 && i === buttons.length - 1)
-        return <button className="mx-1 text-bg h-fit">{b.text}</button>;
+        return (
+          <button key={key(b.text)} className="mx-1 text-bg h-fit">
+            {b.text}
+          </button>
+        );
 
       return (
-        <span className="mx-1 block">
+        <span key={key(b.text)} className="mx-1 block">
           <Button text={b.text} palette={palette} />
         </span>
       );
     });
 
   return (
-    <PopUpModal>
-      <div className={`flex flex-col items-center text-gray-800 ${palette}`}>
+    <PopUpModal palette={palette}>
+      <div className={`flex flex-col items-center ${palette}`}>
         {mode === "error" && (
           <>
             <span className="bg-red-600/25 block w-14 h-14 p-3 rounded-[50%]">
