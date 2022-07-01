@@ -10,7 +10,7 @@ function PopUp({ palette, mode = "stop" }) {
   const optPalette = palette ? palette : "primary";
 
   return (
-    <PopUpModal>
+    <PopUpModal countdown={2}>
       <h2>hello world</h2>
     </PopUpModal>
   );
