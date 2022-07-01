@@ -3,11 +3,12 @@ import PropTypes from "prop-types";
 // Components
 import PopUpModal from "./PopUpModal";
 import Button from "./Button";
+// Helpers
+import key from "./helpers/key";
 // Icons
 import { ReactComponent as CheckIcon } from "./icons/success-icon.svg";
 import { ReactComponent as ErrorIcon } from "./icons/error-icon.svg";
 import { ReactComponent as InfoIcon } from "./icons/info-icon.svg";
-const key = (text) => text.replaceAll(" ", "-");
 
 function PopUp({
   palette = "primary",
