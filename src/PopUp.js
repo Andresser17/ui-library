@@ -13,12 +13,13 @@ function PopUp({
   palette = "primary",
   title,
   description,
-  buttons,
   mode = "success",
+  countdown = 0,
+  buttons,
 }) {
   const [close, setClose] = useState(false);
   const clickButton = (cb) => {
-    cb();
+    cb !== undefined && cb();
     // close modal
     setClose(true);
   };
@@ -48,7 +49,7 @@ function PopUp({
     });
 
   return (
-    <PopUpModal close={close} palette={palette}>
+    <PopUpModal countdown={countdown} close={close} palette={palette}>
       <div className={`flex flex-col items-center ${palette}`}>
         {mode === "error" && (
           <>
@@ -104,6 +105,7 @@ PopUp.propTypes = {
   title: PropTypes.string,
   description: PropTypes.string,
   mode: PropTypes.string,
+  countdown: PropTypes.number,
   buttons: PropTypes.array,
 };
 

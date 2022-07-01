@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 // Icons
 import { ReactComponent as CloseIcon } from "./icons/error-icon.svg";
 
-function PopUpModal({ palette = "primary", countdown = 0, children }) {
+function PopUpModal({ palette = "primary", countdown = 0, close, children }) {
   // refs
   const modalRef = useRef();
 
@@ -15,6 +15,11 @@ function PopUpModal({ palette = "primary", countdown = 0, children }) {
   useEffect(() => {
     if (countdown > 0) setTimeout(closeModal, 1000 * countdown);
   }, [countdown]);
+
+  // close modal if close is true
+  useEffect(() => {
+    if (close) closeModal();
+  }, [close]);
 
   return (
     <div
@@ -35,6 +40,7 @@ function PopUpModal({ palette = "primary", countdown = 0, children }) {
 PopUpModal.propTypes = {
   palette: PropTypes.string,
   countdown: PropTypes.number,
+  close: PropTypes.bool,
 };
 
 export default PopUpModal;
