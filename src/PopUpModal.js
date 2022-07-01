@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 // Icons
 import { ReactComponent as CloseIcon } from "./icons/error-icon.svg";
 
-function PopUpModal({ palette, children, countdown = 0 }) {
+function PopUpModal({ palette, countdown = 0, children }) {
   // If palette is not provided, is equal primary
   const optPalette = palette ? palette : "primary-white";
   // refs
@@ -21,7 +21,7 @@ function PopUpModal({ palette, children, countdown = 0 }) {
   return (
     <div
       ref={modalRef}
-      className={`relative bg-bg text-text px-2 pt-4 pb-2 min-w-[20rem] min-h-[4rem] rounded ${optPalette}`}
+      className={`relative bg-bg text-text px-2 py-4 min-w-[20rem] min-h-[4rem] rounded ${optPalette}`}
     >
       <button
         onClick={closeModal}
@@ -36,7 +36,6 @@ function PopUpModal({ palette, children, countdown = 0 }) {
 }
 PopUpModal.propTypes = {
   palette: PropTypes.string,
-  mode: PropTypes.string,
   countdown: PropTypes.number,
 };
 

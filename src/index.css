@@ -18,6 +18,20 @@
     /* --disabled-border: theme("colors.gray.100"); */
   }
 
+  .primary {
+    --bg: theme("colors.blue.600");
+    --text: theme("colors.gray.100");
+    --hover: theme("colors.blue.700");
+    --active: theme("colors.blue.800");
+    --focus: theme("colors.blue.800");
+    --focus-border: theme("colors.gray.200");
+    --border: theme("colors.gray.100");
+    --disabled-opacity: 0.5;
+    /* --disabled: theme("colors.blue.400"); */
+    /* --disabled-text: theme("colors.gray.100"); */
+    /* --disabled-border: theme("colors.gray.100"); */
+  }
+
   .primary-white {
     --bg: theme("colors.gray.100");
     --text: theme("colors.blue.600");
