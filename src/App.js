@@ -7,7 +7,15 @@ import Tabs from "./Tabs";
 function App() {
   return (
     <div className="App p-4 h-screen bg-green-300 flex items-start justify-center">
-      <Tabs tabs={["Apple", "Pearl", "Java"]} size="sm" palette="primary" />
+      <Tabs
+        tabs={["Apple", "Pearl", "Java"]}
+        size="sm"
+        horizontal
+        palette="primary"
+        getSelected={(t) => {
+          console.log(t);
+        }}
+      />
     </div>
   );
 }
